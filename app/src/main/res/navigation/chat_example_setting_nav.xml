@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/chat_example_setting_nav"
+    app:startDestination="@id/chatFragment">
+
+    <fragment
+        android:id="@+id/chatFragment"
+        android:name="com.ferdu.chtgpt.ui.chat.ChatFragment"
+        android:label="fragment_chat"
+        tools:layout="@layout/fragment_chat" >
+        <action
+            android:id="@+id/action_chatFragment_to_play_Fragment"
+            app:destination="@id/play_Fragment" />
+        <action
+            android:id="@+id/action_chatFragment_to_exampleDetailFragment"
+            app:destination="@id/exampleDetailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/exampleDetailFragment"
+        android:name="com.ferdu.chtgpt.ui.dashboard.ExampleDetailFragment"
+        android:label="fragment_example_detail"
+        tools:layout="@layout/fragment_example_detail" />
+    <fragment
+        android:id="@+id/dashboardFragment"
+        android:name="com.ferdu.chtgpt.ui.dashboard.DashboardFragment"
+        android:label="fragment_dashboard"
+        tools:layout="@layout/fragment_dashboard" >
+        <action
+            android:id="@+id/action_dashboardFragment_to_play_Fragment"
+            app:destination="@id/play_Fragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/play_Fragment"
+        android:name="com.ferdu.chtgpt.ui.chat.Play_Fragment"
+        android:label="fragment_play"
+        tools:layout="@layout/fragment_play" >
+        <action
+            android:id="@+id/action_play_Fragment_to_chatFragment"
+            app:destination="@id/chatFragment" />
+        <action
+            android:id="@+id/action_play_Fragment_to_exampleDetailFragment"
+            app:destination="@id/exampleDetailFragment" />
+    </fragment>
+</navigation>

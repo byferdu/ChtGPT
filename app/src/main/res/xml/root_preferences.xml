@@ -1,0 +1,56 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <Preference
+            app:key="signature"
+            app:summary="Your API key here"
+            app:title="@string/signature_title" />
+    <PreferenceCategory app:title="模式和参数">
+
+        <SwitchPreference
+            android:key="md_out"
+            app:title="Markdown格式输出"
+            app:summary="使文字可读性更强"/>
+        <SwitchPreference
+            android:key="is_trans"
+            app:title="双向翻译"
+            app:isPreferenceVisible="false"
+            app:summary="提示符：中->英，响应：英->中，从而达到节省词元(token)效果。"/>
+        <Preference
+            android:key="set_param"
+            app:title="设置参数"
+            app:summary="AI的答复跟着参数变化而变化"
+            android:fragment="com.ferdu.chtgpt.ui.ParamFragment" />
+
+    </PreferenceCategory>
+
+    <EditTextPreference
+        app:key="user_money"
+        app:summary="如果api密钥用于此应用除外的地方，请在这里同步"
+        app:title="同步余额" />
+<!--    <Preference-->
+<!--        app:key="bug_report"-->
+<!--        app:summary="如果发现Bug，希望你反馈"-->
+<!--        app:title="Bug报告" />-->
+    <Preference
+        app:key="check_version"
+        app:title="检查新版本" />
+ <Preference
+        app:key="logout"
+        app:isPreferenceVisible="false"
+        app:title="退出登录" />
+
+<!--    <PreferenceCategory app:title="@string/sync_header">-->
+
+<!--        <SwitchPreferenceCompat-->
+<!--            app:key="sync"-->
+<!--            app:title="@string/sync_title" />-->
+<!--        <SwitchPreferenceCompat-->
+<!--            app:dependency="sync"-->
+<!--            app:key="attachment"-->
+<!--            app:summaryOff="@string/attachment_summary_off"-->
+<!--            app:summaryOn="@string/attachment_summary_on"-->
+<!--            app:title="@string/attachment_title" />-->
+
+<!--    </PreferenceCategory>-->
+</PreferenceScreen>

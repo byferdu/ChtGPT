@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_home">
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.ferdu.chtgpt.ui.home.HomeFragment"
+        android:label="@string/title_home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/navigation_dashboard"
+        android:name="com.ferdu.chtgpt.ui.dashboard.DashboardFragment"
+        android:label="@string/title_example"
+        tools:layout="@layout/fragment_dashboard" />
+
+    <fragment
+        android:id="@+id/navigation_about"
+        android:name="com.ferdu.chtgpt.ui.me.MeFragment"
+        android:label="@string/title_notifications"
+        tools:layout="@layout/fragment_me" >
+        <action
+            android:id="@+id/action_navigation_about_to_feedbackFragment"
+            app:destination="@id/feedbackFragment"
+            app:enterAnim="@anim/feed_anim_in"
+            app:exitAnim="@anim/feed_anim_out"
+            app:popEnterAnim="@anim/me_anim_in"
+            app:popExitAnim="@anim/me_anim_out"
+           />
+    </fragment>
+    <fragment
+        android:id="@+id/feedbackFragment"
+        android:name="com.ferdu.chtgpt.ui.me.FeedbackFragment"
+        android:label="fragment_feedback"
+        tools:layout="@layout/fragment_feedback" />
+</navigation>

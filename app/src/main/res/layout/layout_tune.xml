@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/tune_back"
+    app:cardCornerRadius="20dp">
+
+
+    <Button
+        android:id="@+id/cancelButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="@color/promp"
+        android:text="取消"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/textView15"
+        app:layout_constraintTop_toBottomOf="@+id/injectFront" />
+
+    <SeekBar
+        android:id="@+id/topPSeek"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:mStepSize="0.00"
+        android:tag="top"
+        app:layout_constraintEnd_toEndOf="@+id/tempratorSeek"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/stopSquEdittext"
+        app:layout_constraintTop_toBottomOf="@+id/textView19" />
+
+    <TextView
+        android:id="@+id/progTextMsx"
+        android:layout_width="@dimen/_40sdp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+
+        android:text="2048"
+        app:layout_constraintEnd_toEndOf="@+id/maxTokenSeek"
+        app:layout_constraintTop_toTopOf="@+id/textView17" />
+
+    <TextView
+        android:id="@+id/textView19"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Top p"
+        android:textColor="@color/black_white"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@+id/stopSquEdittext"
+        app:layout_constraintTop_toBottomOf="@+id/stopSquEdittext" />
+
+    <TextView
+        android:id="@+id/textView17"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="最大词元"
+        android:textColor="@color/black_white"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@+id/spinner2"
+        app:layout_constraintTop_toBottomOf="@+id/tempratorSeek" />
+
+    <TextView
+        android:id="@+id/progTextTemp"
+        android:layout_width="@dimen/_40sdp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:text="00.00"
+        app:layout_constraintEnd_toEndOf="@+id/tempratorSeek"
+        app:layout_constraintTop_toTopOf="@+id/textView13" />
+
+    <SeekBar
+        android:id="@+id/maxTokenSeek"
+        android:layout_width="0dp"
+        android:tag="max"
+        android:max="2048"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="@+id/tempratorSeek"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/textView17"
+        app:layout_constraintTop_toBottomOf="@+id/textView17" />
+
+    <TextView
+        android:id="@+id/textView13"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="温度"
+        android:textColor="@color/black_white"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@+id/spinner2"
+        app:layout_constraintTop_toBottomOf="@+id/spinner2" />
+
+    <SeekBar
+        android:id="@+id/tempratorSeek"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:tag="temp"
+        app:mStepSize="0.00"
+        app:layout_constraintEnd_toEndOf="@+id/isTranslateSwitch"
+        app:layout_constraintStart_toStartOf="@+id/textView13"
+        app:layout_constraintTop_toBottomOf="@+id/textView13" />
+
+    <TextView
+        android:id="@+id/progTextTopP"
+        android:layout_width="@dimen/_40sdp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:text="00.00"
+        app:layout_constraintEnd_toEndOf="@+id/topPSeek"
+        app:layout_constraintTop_toTopOf="@+id/textView19" />
+
+    <androidx.appcompat.widget.AppCompatSpinner
+        android:id="@+id/spinner2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:contentDescription="@string/app_name"
+        android:minHeight="@dimen/_48sdp"
+        app:layout_constraintEnd_toStartOf="@+id/isTranslateSwitch"
+        app:layout_constraintStart_toStartOf="@+id/modelSpanner"
+        app:layout_constraintTop_toBottomOf="@+id/modelSpanner" />
+
+    <TextView
+        android:id="@+id/modelSpanner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="模型"
+        android:textColor="@color/black_white"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/stopSquEdittext"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:background="@color/white_black"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:hint="多个用英文','逗号隔开(最多4个)"
+        app:layout_constraintEnd_toEndOf="@+id/maxTokenSeek"
+        app:layout_constraintStart_toStartOf="@+id/textView18"
+        app:layout_constraintTop_toBottomOf="@+id/textView18"
+        tools:ignore="TouchTargetSizeCheck" />
+
+    <TextView
+        android:id="@+id/textView18"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="停止序列"
+        android:textColor="@color/black_white"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@+id/maxTokenSeek"
+        app:layout_constraintTop_toBottomOf="@+id/maxTokenSeek" />
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/injectFront"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+        android:layout_width="@dimen/_80sdp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:background="@color/white_black"
+        android:ems="10"
+        android:hint="如：A:"
+        android:inputType="textPersonName"
+        app:layout_constraintStart_toEndOf="@+id/textView15"
+        app:layout_constraintTop_toBottomOf="@+id/topPSeek"
+        tools:ignore="TouchTargetSizeCheck" />
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/injectBack"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+        android:layout_width="@dimen/_80sdp"
+        android:layout_height="wrap_content"
+        android:background="@color/white_black"
+        android:ems="10"
+        android:hint="如：B:"
+        android:inputType="textPersonName"
+        app:layout_constraintEnd_toEndOf="@+id/progTextTopP"
+        app:layout_constraintTop_toTopOf="@+id/injectFront"
+        tools:ignore="TouchTargetSizeCheck" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/isTranslateSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:visibility="gone"
+        android:text="双向翻译"
+        app:layout_constraintBottom_toBottomOf="@+id/spinner2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/spinner2" />
+
+    <TextView
+        android:id="@+id/textView15"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="前缀"
+        android:textColor="@color/black_white"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/injectFront"
+        app:layout_constraintStart_toStartOf="@+id/topPSeek"
+        app:layout_constraintTop_toTopOf="@+id/injectFront" />
+
+    <TextView
+        android:id="@+id/textView16"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="后缀"
+        android:textColor="@color/black_white"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/injectBack"
+        app:layout_constraintEnd_toStartOf="@+id/injectBack"
+        app:layout_constraintTop_toTopOf="@+id/injectBack" />
+
+    <Button
+        android:id="@+id/confrimButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="16dp"
+        android:text="确定"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/injectBack"
+        app:layout_constraintTop_toBottomOf="@+id/injectBack" />
+
+    <ImageView
+        android:id="@+id/imageSetting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:padding="@dimen/_3sdp"
+        app:layout_constraintBottom_toBottomOf="@+id/modelSpanner"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/modelSpanner"
+        app:srcCompat="@drawable/baseline_settings_24" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+

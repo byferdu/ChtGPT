@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <color name="purple_200">#40C4FF</color>
+    <color name="purple_500">#03A9F4</color>
+    <color name="purple_700">#03A9F4</color>
+    <color name="link">#0C63E6</color>
+    <color name="message">#5DD59A</color>
+    <color name="teal_200">#5DD59A</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black_white">#FF000000</color>
+    <color name="black_white2">#202123</color>
+    <color name="white_black">#FFFFFF</color>
+    <color name="white_black2">#f7f7f8</color>
+    <color name="white_black3">#66BDC0C5</color>
+    <color name="editBack">#FAFAFA</color>
+    <color name="promp">#A3958C8C</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="green">#19c37d</color>
+    <color name="yellow">#f4ac36</color>
+    <color name="gradient">#dd5ce5</color>
+    <color name="purple">#5436da</color>
+    <color name="pink">#407C29</color>
+    <color name="red">#ef4146</color>
+    <color name="human_text_back">#FAF1FF</color>
+    <color name="into_back_color">#F4F6F8</color>
+    <color name="nav_back" tools:ignore="MissingDefaultResource">#eaf4fd</color>
+    <!--    <color name="look_good_back1">#e6e9f0</color>-->
+    <!--    <color name="look_good_back2">#eef1f5</color>-->
+    <color name="look_good_back1">#c3cfe2</color>
+    <color name="look_good_back2">#f5f7fa</color>
+    <color name="light_blue_600">#FF039BE5</color>
+    <color name="light_blue_900">#FF01579B</color>
+    <color name="light_blue_A200">#FF40C4FF</color>
+    <color name="light_blue_A400">#FF00B0FF</color>
+    <color name="black_overlay">#66000000</color>
+
+</resources>

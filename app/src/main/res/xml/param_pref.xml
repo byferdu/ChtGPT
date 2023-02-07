@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+    <PreferenceCategory app:title="详细参数">
+        <ListPreference
+            app:defaultValue="model"
+            app:entries="@array/model_entries"
+            app:entryValues="@array/model_values"
+            app:key="model"
+            app:title="选择模型"
+            app:useSimpleSummaryProvider="true" />
+    <com.ferdu.chtgpt.util.seek.FloatSeekBarPreference
+        android:key="temperature1"
+        app:title="温度"
+        app:minValue="0"
+        app:maxValue="1"
+        app:defaultValue="0.9"
+        app:showSeekBarValue="true"
+        app:summary="更高的值意味着模型将承担更多的风险。对于更有创意的应用程序，可以尝试0.9，对于有明确答案的应用程序，可以尝试0 (argmax抽样)。
+            我们通常建议修改这个或top_p，但不建议同时修改。"
+        />
+        <SeekBarPreference
+        android:key="maximum_length"
+        app:title="最大长度"
+        android:max="2048"
+        app:min="5"
+        android:defaultValue="400"
+        app:showSeekBarValue="true"
+        app:summary="要生成的词元的最大数量。在提示和完成之间，请求最多可以使用2,048或4,000个词元共享。确切的极限因型号而异。(英文4个字符≈1个词元,中文1个字符≈2个词元)"
+        />
+        <com.ferdu.chtgpt.util.seek.FloatSeekBarPreference
+        android:key="top_p1"
+        app:title="Top P"
+        app:minValue="0"
+        app:maxValue="1"
+        android:defaultValue="0.6"
+        app:showSeekBarValue="true"
+        app:summary="温度采样的另一种替代方法称为核采样，其中模型考虑具有top_p概率质量的标记的结果。所以0.1意味着只考虑包含前10%概率质量的令牌。建议改变这个或温度，不建议两者都改变。"
+        />
+        <EditTextPreference
+            android:key="stop"
+            app:title="停止序列"
+            app:summary="最多4个序列，API将停止生成进一步的词元。返回的文本将不包含停止序列。"
+            app:dialogMessage="多个用英文逗号‘,’隔开"
+            />
+        <com.ferdu.chtgpt.util.seek.FloatSeekBarPreference
+        android:key="frequency_penalty1"
+        app:title="频率惩罚"
+        app:minValue="0"
+        app:maxValue="2"
+        android:defaultValue="0.5"
+        android:valueType="floatType"
+        app:showSeekBarValue="true"
+        app:summary="惩罚系数的合理值约为 0.1 比 1。正值会根据新标记到目前为止是否出现在文本中来惩罚它们，从而增加模型谈论新主题的可能性。"
+        />
+    <com.ferdu.chtgpt.util.seek.FloatSeekBarPreference
+        android:key="presence_penalty1"
+        app:title="存在惩罚"
+        app:minValue="0"
+        app:maxValue="2"
+        android:defaultValue="0.7"
+        android:valueType="floatType"
+        app:showSeekBarValue="true"
+        app:summary="惩罚系数的合理值约为 0.1 比 1。正值会根据新符号在文本中的现有频率来惩罚它们，从而降低模型逐字重复同一行的可能性。"
+        />
+    <SeekBarPreference
+        android:key="best"
+        app:title="最佳"
+        android:max="20"
+        app:min="1"
+        android:defaultValue="1"
+        android:valueType="floatType"
+        app:showSeekBarValue="true"
+        app:summary="在服务器端生成多个补全，并仅显示最佳补全。流式处理仅在设置为1时有效。由于它充当完成次数的乘数，因此此参数可以非常快速地吞噬您的代币配额-请谨慎使用!"
+        />
+    </PreferenceCategory>
+</PreferenceScreen>

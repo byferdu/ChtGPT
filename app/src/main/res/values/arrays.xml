@@ -1,0 +1,68 @@
+<resources>
+    <!-- Reply Preference -->
+    <string-array name="mode_entries">
+        <item>聊天</item>
+        <item>完成</item>
+        <item>综述模式</item>
+        <item>文本到命令</item>
+        <item>问答</item>
+        <item>语法改正</item>
+        <item>翻译</item>
+        <item>代码</item>
+        <item>解析数据</item>
+        <item>自然语言到Python</item>
+        <item>解释代码</item>
+    </string-array>
+
+    <string-array name="mode_values">
+        <item>conversation</item>
+        <item>completion</item>
+        <item>summarization</item>
+        <item>conversion</item>
+        <item>Q_A</item>
+        <item>transformation</item>
+        <item>n_l_py</item>
+        <item>explain_code</item>
+    </string-array>
+    <string-array name="model_entries">
+        <item>text-chat-davinci-002-20230126</item>
+        <item>text-davinci-003</item>
+        <item>text-davinci-001</item>
+        <item>text-davinci-002</item>
+        <item>code-davinci-002</item>
+        <item>code-cushman-001</item>
+        <item>text-curie-001</item>
+        <item>text-babbage-001</item>
+        <item>text-ada-001</item>
+        <item>davinci</item>
+        <item>ada</item>
+        <item>curie</item>
+        <item>babbage</item>
+    </string-array>
+
+    <string-array name="model_values">
+        <item>text-chat-davinci-002-20230126</item>
+        <item>text-davinci-003</item>
+        <item>text-davinci-001</item>
+        <item>text-davinci-002</item>
+        <item>code-davinci-002</item>
+        <item>code-cushman-001</item>
+        <item>davinci</item>
+        <item>ada</item>
+        <item>text-curie-001</item>
+        <item>curie</item>
+        <item>text-babbage-001</item>
+        <item>babbage</item>
+        <item>text-ada-001</item>
+    </string-array>
+    <!-- Reply Preference -->
+    <string-array name="reply_entries">
+        <item>Reply</item>
+        <item>Reply to all</item>
+    </string-array>
+
+    <string-array name="reply_values">
+        <item>reply</item>
+        <item>reply_all</item>
+    </string-array>
+</resources>
