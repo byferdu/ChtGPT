@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +21,7 @@ import androidx.navigation.Navigation;
 import com.ferdu.chtgpt.R;
 import com.ferdu.chtgpt.databinding.FragmentMeBinding;
 import com.ferdu.chtgpt.ui.AboutActivity;
+import com.ferdu.chtgpt.ui.MainActivity;
 import com.ferdu.chtgpt.ui.SettingsActivity;
 import com.ferdu.chtgpt.ui.login.LoginActivity;
 import com.ferdu.chtgpt.viewmodel.MyViewModel;
@@ -45,7 +48,6 @@ public class MeFragment extends Fragment {
         super.onDestroy();
         instance = null;
     }
-
     @RequiresApi(api = Build.VERSION_CODES.O)
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -62,6 +64,12 @@ public class MeFragment extends Fragment {
                 startActivity(new Intent(requireActivity(), LoginActivity.class));
             }
         };
+        if (requireActivity() instanceof MainActivity) {
+            binding.meMaterialToolbar.setNavigationIcon(null);
+        }
+        binding.meMaterialToolbar.setNavigationOnClickListener(v -> {
+
+        });
 
         binding.avatarMe.setOnClickListener(listener);
         binding.userName.setOnClickListener(listener);
@@ -75,17 +83,12 @@ public class MeFragment extends Fragment {
         //      binding.textView23.setText("0.00");
         // 显示注册或登录页面
         //  }
-        binding.aboutButton.setOnClickListener(v -> {
-            Intent intent = new Intent(requireActivity(), AboutActivity.class);
-            startActivity(intent);
-        });
-        binding.settingBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(requireActivity(), SettingsActivity.class);
-            startActivity(intent);
-        });
+        Handler handler = new Handler(Looper.getMainLooper());
+        binding.aboutButton.setOnClickListener(v -> startActivity(new Intent(requireActivity(), AboutActivity.class)));
+        binding.settingBtn.setOnClickListener(v -> startActivity(new Intent(requireActivity(), SettingsActivity.class)));
         meViewModel.getUser().observe(getViewLifecycleOwner(), user -> {
             if (user != null) {
-                double doubleValue= BigDecimal.valueOf(user.getMoney()).setScale(2, RoundingMode.HALF_UP).doubleValue();
+                double doubleValue = BigDecimal.valueOf(user.getMoney()).setScale(2, RoundingMode.HALF_UP).doubleValue();
                 binding.textView23.setText(String.valueOf(doubleValue));
                 binding.textView23.setTooltipText(String.valueOf(user.getMoney()));
                 if (LCUser.currentUser() != null) {
@@ -93,25 +96,23 @@ public class MeFragment extends Fragment {
                 }
             }
         });
-
+        binding.historyButton.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_navigation_about_to_historyFragment));
         binding.feedbackButton.setOnClickListener(v -> {
-            if (LCUser.currentUser()!=null)
-          Navigation.findNavController(v).navigate(R.id.action_navigation_about_to_feedbackFragment);
-            else {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(), R.style.AlertDialog)
-                            .setTitle("提示")
-                            .setMessage("未登录状态")
-                            .setPositiveButton("先登录", (dialog, which) -> {
-                                startActivity(new Intent(requireActivity(), LoginActivity.class));
-                            }).setNegativeButton("发送邮件", (dialog, which) -> {
-                                Intent data= new  Intent(Intent.ACTION_SENDTO);
-                                data.setData(Uri.parse( "mailto:by_ferdu@163.com" ));
-                                data.putExtra(Intent.EXTRA_SUBJECT,  "来自ChtGPT 的反馈");
-                                startActivity(data);
-                            }).setNeutralButton("取消", (dialog, which) -> {
-                                dialog.dismiss();
-                            });
-                    builder.show();
+            if (LCUser.currentUser() != null) {
+                Navigation.findNavController(v).navigate(R.id.action_navigation_about_to_feedbackFragment);
+            } else {
+                AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(), R.style.AlertDialog)
+                        .setTitle("提示")
+                        .setMessage("未登录状态")
+                        .setPositiveButton("先登录", (dialog, which) -> startActivity(new Intent(requireActivity(), LoginActivity.class))).setNegativeButton("发送邮件", (dialog, which) -> {
+                            Intent data = new Intent(Intent.ACTION_SENDTO);
+                            data.setData(Uri.parse("mailto:by_ferdu@163.com"));
+                            data.putExtra(Intent.EXTRA_SUBJECT, "来自ChtGPT 的反馈");
+                            startActivity(data);
+                        }).setNeutralButton("取消", (dialog, which) -> {
+                            dialog.dismiss();
+                        });
+                builder.show();
             }
         });
         return binding.getRoot();

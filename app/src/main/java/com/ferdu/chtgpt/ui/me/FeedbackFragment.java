@@ -104,7 +104,7 @@ public class FeedbackFragment extends Fragment {
                 return binding.tabLayout.getTabCount();
             }
         });
-        binding.materialToolbar.setNavigationOnClickListener(v -> Navigation.findNavController(v).navigateUp());
+        binding.meMaterialToolbar.setNavigationOnClickListener(v -> Navigation.findNavController(v).navigateUp());
         binding.tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {

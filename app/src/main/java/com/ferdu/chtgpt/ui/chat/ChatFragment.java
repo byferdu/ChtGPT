@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.core.content.ContextCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -39,7 +41,7 @@ import com.ferdu.chtgpt.models.data.ChatModel;
 import com.ferdu.chtgpt.models.data.ChatThread;
 import com.ferdu.chtgpt.network.HttpClient;
 import com.ferdu.chtgpt.ui.home.BackPressedListener;
-import com.ferdu.chtgpt.ui.home.HomeFragment;
+import com.ferdu.chtgpt.ui.home.HistoryFragment;
 import com.ferdu.chtgpt.util.MyProgressBar;
 import com.ferdu.chtgpt.viewmodel.MyViewModel;
 import com.google.android.material.snackbar.Snackbar;
@@ -57,13 +59,14 @@ import java.util.concurrent.atomic.AtomicReference;
  * Use the {@link ChatFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ChatFragment extends Fragment  {
+public class ChatFragment extends Fragment {
     private static final String TAG = "TransTag";
     private static final String TAG2 = "ProgressTag";
     private AppCompatImageButton button;
     private boolean isExecute = true;
     private boolean isExecute2 = true;
     StringBuilder savePrompts = new StringBuilder();
+    public static TreadChanged treadChanged;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "exampleId";
@@ -78,7 +81,7 @@ public class ChatFragment extends Fragment  {
     private static final TuneModel tuneModels = new TuneModel();
     private int threadIdField = -1;
     private MyProgressBar progressBar;
-    private com.ferdu.chtgpt.databinding.FragmentChatBinding binding;
+    private FragmentChatBinding binding;
 
     public List<ChatModel> getList() {
         return list;
@@ -116,11 +119,11 @@ public class ChatFragment extends Fragment  {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         list = new ArrayList<>();
-        if (HomeFragment.recyclerViewOnClickData == null) {
-            HomeFragment.recyclerViewOnClickData= new HashMap<>();
+        if (HistoryFragment.recyclerViewOnClickData == null) {
+            HistoryFragment.recyclerViewOnClickData = new HashMap<>();
         }
         Log.d("QIGUAI", "Fragment onCreate: ");
-       // HomeFragment.recyclerViewOnClickData = new HashMap<>();
+        // HistoryFragment.recyclerViewOnClickData = new HashMap<>();
         exampleId = requireActivity().getIntent().getIntExtra("exampleId", -1);
         threadIdField = requireActivity().getIntent().getIntExtra("threadId", -1);
 
@@ -146,7 +149,7 @@ public class ChatFragment extends Fragment  {
         Log.d("QIGUAI", "Fragment onCreateView: ");
 
         binding.startConversation.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_stop_24));
-
+        binding.probText.setOrientation(LinearLayout.HORIZONTAL);
         binding.startConversation.setOnClickListener(v -> {
             if (binding.startConversation.getTag().toString().equals("play")) {
                 binding.startConversation.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_stop_24));
@@ -157,7 +160,28 @@ public class ChatFragment extends Fragment  {
                 savePrompts.setLength(0);
             }
         });
-        binding.materialToolbar.setNavigationOnClickListener(view -> requireActivity().onBackPressed());
+
+        treadChanged = thread -> {
+            DrawerLayout viewById = requireActivity().findViewById(R.id.chat_active);
+            myViewModel.getChatModels(thread.getId()).observe(getViewLifecycleOwner(), chatModels -> {
+                if (chatModels != null && viewById.isOpen()) {
+                    threadIdField = thread.getId();
+                    int size = list.size();
+                    list.clear();
+                    myAdapter.notifyItemRangeRemoved(0, size);
+                    list.addAll(chatModels);
+                    if (0 < list.size()) {
+                        binding.textView.setVisibility(View.GONE);
+                    }
+                    myAdapter.notifyItemRangeChanged(0, list.size());
+
+                }
+            });
+        };
+        binding.chatMaterialToolbar.setNavigationOnClickListener(view -> {
+            DrawerLayout viewById = requireActivity().findViewById(R.id.chat_active);
+            viewById.open();
+        });
         int exampleId = requireActivity().getIntent().getIntExtra("exampleId", -1);
         View contentView = LayoutInflater.from(requireContext()).inflate(R.layout.layout_tune, binding.getRoot(), false);
         Dialog dialog = new Play_Fragment().tunePaneInit(myViewModel, getViewLifecycleOwner(), contentView, sharedPreferences2, exampleId);
@@ -168,7 +192,7 @@ public class ChatFragment extends Fragment  {
         });
         binding.addConnectTextView.setOnClickListener(v -> {
             List<Integer> removesList = new ArrayList<>();
-            HomeFragment.recyclerViewOnClickData.forEach((p,b)->{
+            HistoryFragment.recyclerViewOnClickData.forEach((p, b) -> {
                 if (b) {
                     removesList.add(p);
                 }
@@ -180,17 +204,24 @@ public class ChatFragment extends Fragment  {
                 savePrompts.append("\nUser:").append(chatModel.getMeText()).append("\nChatGPT:")
                         .append(chatModel.getAIText()).append("\n");
             }
-            Toast.makeText(requireContext(), "已添加"+removesList.size()+"个对话", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "已添加" + removesList.size() + "个对话", Toast.LENGTH_SHORT).show();
             cancelSelected();
         });
-
         binding.deleteButton.setOnClickListener(v -> {
+            if (HistoryFragment.recyclerViewOnClickData.size() < 1) {
+                Toast.makeText(requireContext(), "删除前需选择条目", Toast.LENGTH_SHORT).show();
+                return;
+            }
             List<Integer> removesList = new ArrayList<>();
-            HomeFragment.recyclerViewOnClickData.forEach((p,b)->{
+            HistoryFragment.recyclerViewOnClickData.forEach((p, b) -> {
                 if (b) {
                     removesList.add(p);
                 }
             });
+            if (removesList.size() < 1) {
+                Toast.makeText(requireContext(), "删除前需选择条目", Toast.LENGTH_SHORT).show();
+                return;
+            }
             Collections.sort(removesList);
             ArrayList<ChatModel> chatModels = new ArrayList<>(myAdapter.getList());
             for (int i = 0; i < removesList.size(); i++) {
@@ -201,7 +232,7 @@ public class ChatFragment extends Fragment  {
                 }
             }
             AtomicBoolean isUndo = new AtomicBoolean(false);
-            Toast.makeText(requireContext(), "已添加"+removesList.size()+"个对话", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "已添加" + removesList.size() + "个对话", Toast.LENGTH_SHORT).show();
             cancelSelected();
             Snackbar snackbar = Snackbar.make(binding.getRoot(), "删除了" + removesList.size() + "个对话", 4000)
                     .setAction("撤销", view12 -> {
@@ -209,7 +240,7 @@ public class ChatFragment extends Fragment  {
                         list.clear();
                         list.addAll(chatModels);
                         myAdapter.notifyItemRangeChanged(0, chatModels.size());
-                        HomeFragment.recyclerViewOnClickData.clear();
+                        HistoryFragment.recyclerViewOnClickData.clear();
                     });
             snackbar.show();
             handler.postDelayed(() -> {
@@ -217,10 +248,10 @@ public class ChatFragment extends Fragment  {
                     for (int i = 0; i < removesList.size(); i++) {
                         ChatModel chatThread1 = chatModels.get(removesList.get(i));
                         myViewModel.deleteChatModel(chatThread1);
-                      //
+                        //
                     }
-                  //  if (myAdapter.getItemCount()<1) myViewModel.deleteByTreadId(threadIdField);
-                   // Toast.makeText(requireContext(), "删除成功！🤗", Toast.LENGTH_SHORT).show();
+                    //  if (myAdapter.getItemCount()<1) myViewModel.deleteByTreadId(threadIdField);
+                    // Toast.makeText(requireContext(), "删除成功！🤗", Toast.LENGTH_SHORT).show();
                 }
                 removesList.clear();
 
@@ -248,7 +279,6 @@ public class ChatFragment extends Fragment  {
             }
         });
         myViewModel.getChatModels(threadIdField).removeObservers(getViewLifecycleOwner());
-
         myAdapter.setItemLongClick((position) -> {
             binding.selectAllCheck.setVisibility(View.VISIBLE);
             binding.deleteButton.setVisibility(View.VISIBLE);
@@ -260,13 +290,25 @@ public class ChatFragment extends Fragment  {
         });
         myAdapter.setClickListener(((chatModel, adro, position) -> {
             if (AITextAdapter.isMultiSelectMode) {
-                if (HomeFragment.recyclerViewOnClickData.containsKey(position))
-                    HomeFragment.recyclerViewOnClickData.replace(position, adro);
-                else HomeFragment.recyclerViewOnClickData.put(position, adro);
+                if (HistoryFragment.recyclerViewOnClickData.containsKey(position))
+                    HistoryFragment.recyclerViewOnClickData.replace(position, adro);
+                else HistoryFragment.recyclerViewOnClickData.put(position, adro);
                 //    myAdapter.notifyItemChanged(position);
                 //threadAdapter.notifyDataSetChanged();
             }
         }));
+        String prompt = requireActivity().getIntent().getStringExtra("prompt");
+        if (threadIdField == -1 && editText != null) {
+            handler.postDelayed(() -> {
+                if (prompt != null && !prompt.isEmpty()) {
+                    editText.setText(prompt);
+                    editText.setSelection(prompt.length());
+                }
+                editText.requestFocus();
+                InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(INPUT_METHOD_SERVICE);
+                imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+            }, 100);
+        }
 
         button.setOnClickListener(view -> {
             //开始计时
@@ -359,25 +401,28 @@ public class ChatFragment extends Fragment  {
 
         });
         binding.selectAllCheck.setOnCheckedChangeListener(((buttonView, isChecked) -> {
-            AITextAdapter.selectAll = isChecked?1:2;
-            HomeFragment.recyclerViewOnClickData.clear();
+            AITextAdapter.selectAll = isChecked ? 1 : 2;
+            HistoryFragment.recyclerViewOnClickData.clear();
             if (isChecked) {
                 for (int i = 0; i < myAdapter.getItemCount(); i++) {
-                    HomeFragment.recyclerViewOnClickData.put(i, true);
+                    HistoryFragment.recyclerViewOnClickData.put(i, true);
                 }
             }
             myAdapter.notifyDataSetChanged();
         }));
+
+
         String types = requireActivity().getIntent().getStringExtra("types");
+
         if (getArguments() != null && getArguments().getBoolean("backToChat", false)) {
             binding.exampleImage.setVisibility(View.VISIBLE);
             myViewModel.getExample(exampleId).observe(getViewLifecycleOwner(), example2 -> {
                 if (example2 != null) {
-                    binding.materialToolbar.setTitle(example2.getTitle());
+                    binding.chatMaterialToolbar.setTitle(example2.getTitle());
                     if (editText != null && list.size() < 1) {
                         editText.setText(example2.getPrompt());
                         editText.setSelection(example2.getPrompt().length());
-                        new Handler().postDelayed(() -> {
+                        handler.postDelayed(() -> {
                             editText.requestFocus();
                             InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(INPUT_METHOD_SERVICE);
                             imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
@@ -428,6 +473,9 @@ public class ChatFragment extends Fragment  {
                             xx = 0.0004;
                         } else if (model.contains("davinci")) {
                             xx = 0.02;
+                            if (model.length()>22) {
+                                xx = 0.0;
+                            }
                         } else if (model.contains("babbage")) {
                             xx = 0.0005;
                         } else if (model.contains("curie")) {
@@ -559,9 +607,11 @@ public class ChatFragment extends Fragment  {
         super.onDestroyView();
         myViewModel.selectChatThreadInsertId().removeObservers(getViewLifecycleOwner());
         myViewModel.selectChatThreadInsertId().removeObservers(requireActivity());
-
+        if (ChatActivity.drawerLayout != null) {
+            ChatActivity.drawerLayout.close();
+        }
         AITextAdapter.isMultiSelectMode = false;
-       // chatFragment = null;
+        // chatFragment = null;
         Log.d("QIGUAI", "Fragment onDestroyView: ");
 
     }
@@ -574,14 +624,14 @@ public class ChatFragment extends Fragment  {
         // list = null;
         savePrompts.setLength(0);
         Log.d("QIGUAI", "Fragment onDestroy: ");
-        HomeFragment.recyclerViewOnClickData.clear();
+        HistoryFragment.recyclerViewOnClickData.clear();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         backPressedListener = () -> {
-            if (AITextAdapter.isMultiSelectMode && binding != null&&myAdapter!=null) {
+            if (AITextAdapter.isMultiSelectMode && binding != null && myAdapter != null) {
                 cancelSelected();
                 return true;
             }
@@ -589,7 +639,6 @@ public class ChatFragment extends Fragment  {
         };
         Log.d("QIGUAI", "Fragment onResume: ");
     }
-
 
 
     @SuppressLint("NotifyDataSetChanged")
@@ -603,7 +652,8 @@ public class ChatFragment extends Fragment  {
         binding.button.setVisibility(View.VISIBLE);
         AITextAdapter.isMultiSelectMode = false;
         AITextAdapter.selectAll = 0;
-        HomeFragment.recyclerViewOnClickData.clear();
+        HistoryFragment.recyclerViewOnClickData.clear();
         myAdapter.notifyDataSetChanged();
+        Log.d("NOACTIVITY", "cancelSelected: ");
     }
 }

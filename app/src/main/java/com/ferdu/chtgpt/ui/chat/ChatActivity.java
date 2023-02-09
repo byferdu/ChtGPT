@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
@@ -18,7 +19,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private com.ferdu.chtgpt.databinding.ActivityChatBinding binding;
 
-
+    public static DrawerLayout drawerLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,9 +40,12 @@ public class ChatActivity extends AppCompatActivity {
         }else super.onBackPressed();
     }
 
+
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        drawerLayout = null;
         binding = null;
     }
 }

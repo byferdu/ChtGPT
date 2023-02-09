@@ -10,8 +10,8 @@
     tools:src="@tools:sample/avatars">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="140dp"
-        android:layout_height="100dp">
+        android:layout_width="@dimen/_115sdp"
+        android:layout_height="@dimen/_80sdp">
         <View
             android:id="@+id/selectView"
             android:layout_width="match_parent"
@@ -29,6 +29,7 @@
             android:gravity="center"
             android:textColor="@color/black_white2"
             android:text="TextView"
+            android:textSize="@dimen/_10ssp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

@@ -165,55 +165,11 @@ public class MyUtil {
         AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.AlertDialog)
                 //.setTitle("设置密钥")
                 .setPositiveButton("设置好了", (dialogInterface, i) -> {
-                    if (editText != null) {
-                        if (editText.getText().toString().trim().isEmpty()) {
-                            //不满足条件，“确定”按钮无效
-                            try {
-                                Field field = Objects.requireNonNull(dialogInterface.getClass().getSuperclass()).getDeclaredField("mShowing");
-                                field.setAccessible(true);
-                                field.set(dialogInterface, false);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                Log.d("1324Tag", "onCreate: " + e);
-                            }
-                            editText.setError("请填写完整");
-                            Toast.makeText(context, "请填写完整🤨", Toast.LENGTH_SHORT).show();
-
-                        } else if (editText.getText().toString().contains("sk-")) {
-                            progressBar.setVisibility(View.VISIBLE);
-                            Log.d("TAG1213", "onCreate: " + sharedPreferences.getString("token", ""));
-                            myViewModel.getTex("Bearer " + editText.getText().toString()
-                                    , new ReqModel()).observe(context, responseData -> {
-                                if (responseData != null) {
-                                    if (responseData.getChoices() != null) {
-                                        SharedPreferences.Editor edit = sharedPreferences.edit();
-                                        edit.putString("key", "Bearer " + editText.getText().toString());
-                                        edit.apply();
-                                        Toast.makeText(context, "保存成功！🤗", Toast.LENGTH_SHORT).show();
-                                        progressBar.setVisibility(View.GONE);
-                                        try {
-                                            Field field = Objects.requireNonNull(dialogInterface.getClass().getSuperclass()).getDeclaredField("mShowing");
-                                            field.setAccessible(true);
-                                            field.set(dialogInterface, true);
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                        dialogInterface.dismiss();
-                                    } else {
-                                        Toast.makeText(context, "检查密钥🤨", Toast.LENGTH_SHORT).show();
-                                    }
-                                } else {
-                                    editText.setError("错误密钥，检查你的密钥");
-                                    Toast.makeText(context, "错误密钥，检查你的密钥🤨", Toast.LENGTH_SHORT).show();
-                                    progressBar.setVisibility(View.GONE);
-                                }
-
-                            });
-                        } else {
-                            progressBar.setVisibility(View.GONE);
-                            editText.setError("错误密钥，检查你的密钥");
-                            Toast.makeText(context, "错误密钥，检查你的密钥🤨", Toast.LENGTH_SHORT).show();
-                        }
+                    if (editText == null) {
+                        return;
+                    }
+                    if (editText.getText().toString().trim().isEmpty()) {
+                        //不满足条件，“确定”按钮无效
                         try {
                             Field field = Objects.requireNonNull(dialogInterface.getClass().getSuperclass()).getDeclaredField("mShowing");
                             field.setAccessible(true);
@@ -222,9 +178,60 @@ public class MyUtil {
                             e.printStackTrace();
                             Log.d("1324Tag", "onCreate: " + e);
                         }
+                        editText.setError("请填写完整");
+                        Toast.makeText(context, "请填写完整🤨", Toast.LENGTH_SHORT).show();
 
-                        //dialogInterface.dismiss();
+                    } else if (editText.getText().toString().contains("sk-")) {
+                        progressBar.setVisibility(View.VISIBLE);
+                        Log.d("TAG1213", "onCreate: " + sharedPreferences.getString("token", ""));
+                        myViewModel.getTex("Bearer " + editText.getText().toString()
+                                , new ReqModel()).observe(context, responseData -> {
+                            if (responseData.getErrorMessage() == null) {
+                                if (responseData.getError() != null) {
+                                    Toast.makeText(context, responseData.getError().getError().getType(), Toast.LENGTH_SHORT).show();
+                                    progressBar.setVisibility(View.GONE);
+                                    return;
+                                }
+                                if (responseData.getChoices() == null) {
+                                    Toast.makeText(context, "检查密钥过程中出错了🤨", Toast.LENGTH_SHORT).show();
+                                    progressBar.setVisibility(View.GONE);
+                                    return;
+                                }
+                                SharedPreferences.Editor edit = sharedPreferences.edit();
+                                edit.putString("key", "Bearer " + editText.getText().toString());
+                                edit.apply();
+                                Toast.makeText(context, "保存成功！🤗", Toast.LENGTH_SHORT).show();
+                                progressBar.setVisibility(View.GONE);
+                                try {
+                                    Field field = Objects.requireNonNull(dialogInterface.getClass().getSuperclass()).getDeclaredField("mShowing");
+                                    field.setAccessible(true);
+                                    field.set(dialogInterface, true);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                dialogInterface.dismiss();
+                            } else {
+                                editText.setError("错误密钥，检查你的密钥");
+                                Toast.makeText(context, responseData.getErrorMessage(), Toast.LENGTH_SHORT).show();
+                                progressBar.setVisibility(View.GONE);
+                            }
+
+                        });
+                    } else {
+                        progressBar.setVisibility(View.GONE);
+                        editText.setError("错误密钥，检查你的密钥");
+                        Toast.makeText(context, "错误密钥，检查你的密钥🤨", Toast.LENGTH_SHORT).show();
                     }
+                    try {
+                        Field field = Objects.requireNonNull(dialogInterface.getClass().getSuperclass()).getDeclaredField("mShowing");
+                        field.setAccessible(true);
+                        field.set(dialogInterface, false);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Log.d("1324Tag", "onCreate: " + e);
+                    }
+                    //dialogInterface.dismiss();
+
                 })
                 .setNegativeButton(negativeText, ((dialogInterface, i) -> {
                     dialogInterface.dismiss();
@@ -262,6 +269,7 @@ public class MyUtil {
 
         return flag;
     }
+
     public static void saveLastClick(long curClickTime) {
         lastClickTime = curClickTime;
     }

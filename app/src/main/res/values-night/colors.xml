@@ -12,7 +12,7 @@
     <color name="black_white">#FFFFFFFF</color>
     <color name="black_white2">#FFFFFFFF</color>
     <color name="white_black">#000000</color>
-    <color name="white_black2">#21252B</color>
+    <color name="white_black2">#1D242E</color>
     <color name="white_black3">#666E7681</color>
     <color name="white">#FFFFFFFF</color>
     <color name="green">#19c37d</color>
@@ -21,6 +21,7 @@
     <color name="purple">#5436da</color>
     <color name="pink">#407C29</color>
     <color name="red">#ef4146</color>
+    <color name="pageBackground">#1B1F2B</color>
     <color name="human_text_back">#23252C</color>
     <color name="into_back_color">#2C3142</color>
 <!--    <color name="into_back_color2">#403A3A59</color>-->

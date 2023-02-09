@@ -2,6 +2,7 @@ package com.ferdu.chtgpt.ui;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
@@ -9,8 +10,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
 import com.ferdu.chtgpt.R;
-import com.ferdu.chtgpt.databinding.ActivityMainBinding;
-import com.ferdu.chtgpt.ui.home.HomeFragment;
+import com.ferdu.chtgpt.ui.home.HistoryFragment;
 import com.ferdu.chtgpt.util.MyUtil;
 
 import java.util.Objects;
@@ -21,18 +21,18 @@ import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 
 public class MainActivity extends AppCompatActivity {
-    private ActivityMainBinding binding;
+    private com.ferdu.chtgpt.databinding.ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //myViewModel = new ViewModelProvider(this,new ViewModelProvider.AndroidViewModelFactory(getApplication())).get(MyViewModel.class);
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        binding = com.ferdu.chtgpt.databinding.ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
          // BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-      //HomeFragment homeFragment = new HomeFragment();
+      //HistoryFragment homeFragment = new HistoryFragment();
 
       SharedPreferences shared = MyUtil.getShared(this);
         if (shared.getBoolean("isFirstInstall", true)) {
@@ -73,11 +73,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         binding=null;
+        HistoryFragment.pressedListener = null;
     }
     @Override
     public void onBackPressed() {
-        if (HomeFragment.instance != null) {
-            if (!HomeFragment.instance.handleBackPressed()) {
+        Log.d("NOACTIVITY", "onBackPressed: "+HistoryFragment.pressedListener);
+        if (HistoryFragment.pressedListener != null) {
+            if (!HistoryFragment.pressedListener.handleBackPressed()) {
                 if (binding.navView.isShown()) {
                     finish();
                 }else super.onBackPressed();

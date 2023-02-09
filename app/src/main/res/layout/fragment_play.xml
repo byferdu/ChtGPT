@@ -9,7 +9,7 @@
 
 
     <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/materialToolbar"
+        android:id="@+id/meMaterialToolbar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
@@ -64,7 +64,7 @@
         app:layout_constraintBottom_toTopOf="@+id/constraintLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/materialToolbar">
+        app:layout_constraintTop_toBottomOf="@id/meMaterialToolbar">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/editTextInInputLayout"

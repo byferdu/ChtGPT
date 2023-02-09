@@ -36,7 +36,7 @@ public class DashboardFragment extends Fragment implements MyItemClickListener<E
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        dashboardViewModel1 = new ViewModelProvider(this, new ViewModelProvider.AndroidViewModelFactory(requireActivity().getApplication())).get(MyViewModel.class);
+        dashboardViewModel1 = new ViewModelProvider(this).get(MyViewModel.class);
         ExampleAdapter exampleAdapter = new ExampleAdapter(this);
         binding = FragmentDashboardBinding.inflate(inflater, container, false);
         binding.recyclerView2.setAdapter(exampleAdapter);

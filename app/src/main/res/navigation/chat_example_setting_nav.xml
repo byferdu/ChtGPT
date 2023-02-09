@@ -16,6 +16,9 @@
         <action
             android:id="@+id/action_chatFragment_to_exampleDetailFragment"
             app:destination="@id/exampleDetailFragment" />
+        <action
+            android:id="@+id/action_chatFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
     </fragment>
     <fragment
         android:id="@+id/exampleDetailFragment"
@@ -43,4 +46,9 @@
             android:id="@+id/action_play_Fragment_to_exampleDetailFragment"
             app:destination="@id/exampleDetailFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.ferdu.chtgpt.ui.home.HistoryFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_history" />
 </navigation>

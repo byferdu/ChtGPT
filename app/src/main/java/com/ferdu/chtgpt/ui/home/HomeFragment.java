@@ -1,27 +1,29 @@
 package com.ferdu.chtgpt.ui.home;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Rect;
-import android.os.Build;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
+import androidx.appcompat.widget.SearchView;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
+import com.ferdu.chtgpt.R;
+import com.ferdu.chtgpt.databinding.AddPoupeWindowBinding;
 import com.ferdu.chtgpt.databinding.FragmentHomeBinding;
-import com.ferdu.chtgpt.models.data.ChatThread;
 import com.ferdu.chtgpt.ui.chat.ChatActivity;
 import com.ferdu.chtgpt.util.MyUtil;
 import com.ferdu.chtgpt.util.update.AppUtils;
@@ -29,47 +31,95 @@ import com.ferdu.chtgpt.util.update.AppVersionInfoBean;
 import com.ferdu.chtgpt.util.update.UpdateApk;
 import com.ferdu.chtgpt.util.update.impl.UpdateVersionShowDialog;
 import com.ferdu.chtgpt.viewmodel.MyViewModel;
-import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import cn.leancloud.LCObject;
 import cn.leancloud.LCQuery;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 
+/**
+ * A simple {@link Fragment} subclass.
+ * Use the {@link HomeFragment#newInstance} factory method to
+ * create an instance of this fragment.
+ */
+public class HomeFragment extends Fragment {
 
-public class HomeFragment extends Fragment implements BackPressedListener {
+    // TODO: Rename parameter arguments, choose names that match
+    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    private static final String ARG_PARAM1 = "param1";
+    private static final String ARG_PARAM2 = "param2";
+    private boolean scrollingUp = false;
+    // TODO: Rename and change types of parameters
+    private String mParam1;
+    private String mParam2;
+    private final List<PromptModel> list = new ArrayList<>();
 
-    private FragmentHomeBinding binding;
-    public static Map<Integer, Boolean> recyclerViewOnClickData=new HashMap<>();
-    Handler handler = new Handler(Looper.getMainLooper());
+    public HomeFragment() {
+        // Required empty public constructor
+    }
 
-    public static HomeFragment instance;
+    /**
+     * Use this factory method to create a new instance of
+     * this fragment using the provided parameters.
+     *
+     * @param param1 Parameter 1.
+     * @param param2 Parameter 2.
+     * @return A new instance of fragment HomeFragment.
+     */
+    // TODO: Rename and change types and number of parameters
+    public static HomeFragment newInstance(String param1, String param2) {
+        HomeFragment fragment = new HomeFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_PARAM1, param1);
+        args.putString(ARG_PARAM2, param2);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            mParam1 = getArguments().getString(ARG_PARAM1);
+            mParam2 = getArguments().getString(ARG_PARAM2);
+        }
+    }
 
-        binding = FragmentHomeBinding.inflate(inflater, container, false);
-        MyViewModel myViewModel = new ViewModelProvider(requireActivity()).get(MyViewModel.class);
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        FragmentHomeBinding binding = FragmentHomeBinding.inflate(inflater, container, false);
+        MyViewModel myViewModel = new ViewModelProvider(this).get(MyViewModel.class);
         SharedPreferences keyShared = MyUtil.getShared(requireContext());
-        List<ChatThread> chatThreadsList = new ArrayList<>();
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(requireContext(), 2);
-        binding.recyclerThread.setLayoutManager(gridLayoutManager);
-
         SharedPreferences.Editor edit = keyShared.edit();
+        binding.view.setOnClickListener(v -> {
+            if (!keyShared.getString("key", "").isEmpty()) {
+                startActivity(new Intent(requireActivity(), ChatActivity.class));
+            } else MyUtil.ShowSetKeyDialog(requireActivity(), binding.getRoot(), myViewModel, false);
+        });
         if (AppUtils.judgmentDate(System.currentTimeMillis(), keyShared.getLong("versionDate", 1000))) {
             edit.putLong("versionDate", System.currentTimeMillis());
             edit.putBoolean("isCheckVersion", false);
             edit.apply();
         }
+        PromptsAdapter promptsAdapter = new PromptsAdapter(list);
+        myViewModel.getPrompts().observe(getViewLifecycleOwner(), promptModels -> {
+            if (promptModels != null ) {
+                if (list.size()>0){
+                    int size = list.size();
+                    list.clear();
+                    promptsAdapter.notifyItemRangeRemoved(0, size);
+                }
+                list.addAll(promptModels);
+                promptsAdapter.notifyItemRangeChanged(0, promptModels.size());
+            }
+        });
         if (!keyShared.getBoolean("isCheckVersion", false)) {
             LCQuery<LCObject> query = new LCQuery<>("UpdateApk");
             query.findInBackground().subscribe(new Observer<List<LCObject>>() {
@@ -101,182 +151,163 @@ public class HomeFragment extends Fragment implements BackPressedListener {
 
                 }
             });
-        }
-        binding.recyclerThread.addItemDecoration(new RecyclerView.ItemDecoration() {
-            @Override
-            public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
-                super.getItemOffsets(outRect, view, parent, state);
-                int position = parent.getChildAdapterPosition(view);
-                int column = position % 2;
-                if (column == 0) { //第一列
-                    outRect.left = 120 / 2;
-                    outRect.right = 40 / 2;
-                } else if (column == 1) { //第二列
-                    outRect.left = 80 / 2;
-                    outRect.right = 20 / 2;
+            LCQuery<LCObject> query2 = new LCQuery<>("Prompt").limit(200);
+            query2.findInBackground().subscribe(new Observer<List<LCObject>>() {
+                @Override
+                public void onSubscribe(Disposable d) {
                 }
-                outRect.top = 40;
-                outRect.bottom = 40;
-            }
-        });
-        ThreadAdapter threadAdapter = new ThreadAdapter(chatThreadsList);
-        binding.recyclerThread.setAdapter(threadAdapter);
-        myViewModel.getChatThreadsAll().observe(requireActivity(), chatThreads -> {
-            if (chatThreads != null) {
-                chatThreadsList.clear();
-                chatThreadsList.addAll(chatThreads);
-                threadAdapter.notifyDataSetChanged();
-            }
-        });
-        threadAdapter.setClickListener((chatThread, adro, position) -> {
-            if (!ThreadAdapter.isLongClick) {
-                Intent intent = new Intent(requireActivity(), ChatActivity.class);
-                int id = chatThread.getId();
-                intent.putExtra("threadId", id);
-                startActivity(intent);
-            } else {
-                if (recyclerViewOnClickData.containsKey(position)) recyclerViewOnClickData.replace(position, adro);
-                else  recyclerViewOnClickData.put(position, adro);
-                threadAdapter.notifyItemChanged(position);
-                //threadAdapter.notifyDataSetChanged();
-            }
+                @Override
+                public void onNext(List<LCObject> lcObjects) {
+                    List<PromptModel> promptModels = new ArrayList<>();
+                    Date date = new Date();
+                    date.setTime(keyShared.getLong("versionDate", 1000));
+                    for (int i = 0; i < lcObjects.size(); i++) {
+                        promptModels.add(new PromptModel(lcObjects.get(i).getObjectId(), lcObjects.get(i).get("act").toString()
+                                , lcObjects.get(i).get("prompt").toString()));
+                        Log.d("TAGupdate", "onNext: "+lcObjects.get(i).getUpdatedAt());
+                        if (lcObjects.get(i).getUpdatedAt().after(date)) {
+                            // myViewModel.insertPrompts(promptModels.get(i));
+                            if (myViewModel.getAtPrompts(lcObjects.get(i).getObjectId()) != null) {
+                                myViewModel.updatePrompts(promptModels.get(i));
+                            }else  myViewModel.insertPrompts(promptModels.get(i));
+                        }
+                    }
+                    list.addAll(promptModels);
+                    promptsAdapter.notifyItemRangeChanged(0, promptModels.size());
+                }
 
+                @Override
+                public void onError(Throwable e) {
+
+                }
+
+                @Override
+                public void onComplete() {
+
+                }
+            });
+        }
+        binding.keys.setOnClickListener(v -> {
+            Intent intent = new Intent();
+            intent.setAction("android.intent.action.VIEW");
+            Uri content_url = Uri.parse("https://m.tb.cn/h.Umrrw8k?tk=2Ss1d6v6FPy");
+            intent.setData(content_url);
+            startActivity(intent);
         });
-        threadAdapter.setOnItemLongClickListener((int pos) -> {
-            binding.searchChats.setVisibility(View.GONE);
-            binding.selectAllCheck.setVisibility(View.VISIBLE);
-            binding.deleteButton.setVisibility(View.VISIBLE);
-            binding.cancelText.setVisibility(View.VISIBLE);
+        binding.shareCard.setOnClickListener(v -> {
+            Intent intent = new Intent();
+            intent.setAction("android.intent.action.VIEW");
+            Uri content_url = Uri.parse("https://sharegpt.com/explore");
+            intent.setData(content_url);
+            startActivity(intent);
         });
-        binding.searchChats.setOnQueryTextListener(new androidx.appcompat.widget.SearchView.OnQueryTextListener() {
+        binding.searchPrompt.setOnSearchClickListener(v -> {
+            binding.flow.setVisibility(View.GONE);
+            binding.startText.setVisibility(View.GONE);
+            binding.view.setVisibility(View.GONE);
+            requireActivity().findViewById(R.id.nav_view).setVisibility(View.GONE);
+        });
+        binding.addIcon.setOnClickListener(this::initPopup);
+        binding.searchPrompt.setOnCloseListener(() -> {
+            binding.flow.setVisibility(View.VISIBLE);
+            binding.startText.setVisibility(View.VISIBLE);
+            binding.view.setVisibility(View.VISIBLE);
+            requireActivity().findViewById(R.id.nav_view).setVisibility(View.VISIBLE);
+            binding.searchPrompt.setQuery("", false);
+            binding.searchPrompt.clearFocus();
+            // 隐藏键盘
+            InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(binding.searchPrompt.getWindowToken(), 0);
+            return false;
+        });
+        binding.searchPrompt.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public boolean onQueryTextSubmit(String s) {
+            public boolean onQueryTextSubmit(String query) {
                 return false;
             }
 
             @Override
-            public boolean onQueryTextChange(String s) {
-                myViewModel.getCTQuery(s).observe(getViewLifecycleOwner(), chatThreads -> {
-                    if (chatThreads != null) {
-                        int itemCount = threadAdapter.getItemCount();
-                        if (itemCount != chatThreads.size()) {
-                            chatThreadsList.clear();
-                            chatThreadsList.addAll(chatThreads);
-                            threadAdapter.notifyDataSetChanged();
-                        }
+            public boolean onQueryTextChange(String newText) {
+                myViewModel.getPromptSearch(newText).observe(getViewLifecycleOwner(), promptModels -> {
+                    if (promptModels != null) {
+                        int size = list.size();
+                        list.clear();
+                        promptsAdapter.notifyItemRangeRemoved(0,size);
+                        list.addAll(promptModels);
+                        promptsAdapter.notifyItemRangeChanged(0, promptModels.size());
                     }
                 });
+
                 return true;
             }
         });
-        binding.selectAllCheck.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            recyclerViewOnClickData.clear();
-            if (isChecked) {
-                ThreadAdapter.selectAll = 1;
+        binding.promptRecycler.setAdapter(promptsAdapter);
 
-                for (int i = 0; i < threadAdapter.getChatThreads().size(); i++) {
-                    recyclerViewOnClickData.put(i, true);
-                }
-            } else {
-                ThreadAdapter.selectAll = 2;
-            }
-            threadAdapter.notifyDataSetChanged();
-        });
-        binding.cancelText.setOnClickListener(v -> {
-            binding.searchChats.setVisibility(View.VISIBLE);
-            binding.selectAllCheck.setVisibility(View.GONE);
-            binding.deleteButton.setVisibility(View.GONE);
-            binding.cancelText.setVisibility(View.GONE);
-            ThreadAdapter.isLongClick = false;
-            recyclerViewOnClickData.clear();
-            threadAdapter.notifyDataSetChanged();
-        });
-
-        binding.deleteButton.setOnClickListener(v -> {
-            List<Integer> removesList = new ArrayList<>();
-                recyclerViewOnClickData.forEach((p,b)->{
-                    if (b) {
-                        removesList.add(p);
-                    }
-                });
-            Collections.sort(removesList);
-            ArrayList<ChatThread> chatThreads = new ArrayList<>(threadAdapter.getChatThreads());
-
-            for (int i = 0; i < removesList.size(); i++) {
-                if (i == 0) {
-                    threadAdapter.removeNotes(removesList.get(i));
-                } else {
-                    threadAdapter.removeNotes(removesList.get(i) - i);
-                }
-            }
-            AtomicBoolean isUndo = new AtomicBoolean(false);
-//            StringBuilder pos = new StringBuilder();
-//            for (Integer integer : removesList) {
-//                pos.append(integer).append(",");
-//            }
-            binding.cancelText.callOnClick();
-            Snackbar snackbar = Snackbar.make(binding.getRoot(), "删除了" + removesList.size() + "个(含内容的)聊天室", 4000)
-                    .setAction("撤销", view12 -> {
-                        isUndo.set(true);
-                        chatThreadsList.clear();
-                        chatThreadsList.addAll(chatThreads);
-                        threadAdapter.notifyItemRangeChanged(0, chatThreads.size());
-                        recyclerViewOnClickData.clear();
-                    });
-            snackbar.show();
-            handler.postDelayed(() -> {
-                if (!snackbar.isShownOrQueued() && !isUndo.get() && removesList.size() > 0) {
-                    for (int i = 0; i < removesList.size(); i++) {
-                        ChatThread chatThread1 = chatThreads.get(removesList.get(i));
-                        myViewModel.deleteChatThread(chatThread1);
-                        int i1 = myViewModel.deleteByTreadId(chatThread1.getId());
-                    }
-                    Toast.makeText(requireContext(), "删除成功！🤗", Toast.LENGTH_SHORT).show();
-                }
-                removesList.clear();
-                ThreadAdapter.selectAll = 2;
-            }, 5000);
-        });
-        View root = binding.getRoot();
-        binding.floatingActionButton.setOnClickListener(view -> {
-            String key = keyShared.getString("key", "");
-            if (key != null && !key.isEmpty()) {
-                startActivity(new Intent(requireActivity(), ChatActivity.class));
-            } else {
-                MyUtil.ShowSetKeyDialog(requireActivity(), binding.getRoot(), myViewModel, false);
+        binding.nestedScroll.setOnScrollChangeListener((NestedScrollView.OnScrollChangeListener) (v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+            if (scrollY > oldScrollY && !scrollingUp) {
+                // Scrolling up
+                scrollingUp = true;
+                //  Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_out_left);
+                binding.view.animate()
+                        .translationX(-(float) binding.view.getWidth())
+                        .setDuration(200)
+                        .start();
+                binding.startText.animate()
+                        .translationX(-(float) binding.view.getWidth())
+                        .setDuration(200)
+                        .start();
+                //   binding.view.setVisibility(View.GONE);
+            } else if (scrollY < oldScrollY && scrollingUp) {
+                // Scrolling down
+                scrollingUp = false;
+                //  Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_in_left);
+                binding.startText.animate()
+                        .translationX(0f)
+                        .setDuration(200)
+                        .start();
+                binding.view.animate()
+                        .translationX(0f)
+                        .setDuration(200)
+                        .start();
+                // binding.view.setVisibility(View.VISIBLE);
             }
         });
-        return root;
+
+        promptsAdapter.setClickListener((model, adro, position) -> {
+            if (!keyShared.getString("key", "").isEmpty()) {
+                Intent intent = new Intent(requireActivity(), ChatActivity.class);
+                intent.putExtra("prompt", model.getPrompt());
+                startActivity(intent);
+            } else MyUtil.ShowSetKeyDialog(requireActivity(), binding.getRoot(), myViewModel, false);
+        });
+        return binding.getRoot();
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        instance = this;
+    private void initPopup(View parentView) {
+        View contentView = LayoutInflater.from(requireContext()).inflate(R.layout.add_poupe_window, null);
+        PopupWindow popupWindow = new PopupWindow(contentView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
 
-    }
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        //  popupWindow.showAtLocation(parentView, , (int) (parentView.getX()), (int) (parentView.getY()+parentView.getHeight()*2));
+        popupWindow.showAsDropDown(parentView);
+        AddPoupeWindowBinding binding1 = AddPoupeWindowBinding.bind(contentView);
+        binding1.tvAddTip.setOnClickListener(v -> {
+            // 添加提示的点击事件
+            popupWindow.dismiss();
+        });
+        binding1.tvAddExample.setOnClickListener(v -> {
+            // 添加例
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-        ThreadAdapter.isLongClick = false;
-    }
-
-
-    @Override
-    public boolean handleBackPressed() {
-        if (ThreadAdapter.isLongClick && binding != null) {
-            binding.cancelText.callOnClick();
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        instance = null;
-        recyclerViewOnClickData.clear();
+            popupWindow.dismiss();
+        });
+        binding1.tvAddModel.setOnClickListener(v -> {
+            // 添加模型的点击事件
+            popupWindow.dismiss();
+        });
+        binding1.tvAddKey.setOnClickListener(v -> {
+            // 添加密钥的点击事件
+            popupWindow.dismiss();
+        });
     }
 }

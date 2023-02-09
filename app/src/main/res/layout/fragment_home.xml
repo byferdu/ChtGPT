@@ -3,9 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/navigation_home"
-    tools:context=".ui.home.HomeFragment">
+    android:layout_height="match_parent">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -16,69 +14,204 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.appcompat.widget.SearchView
-            android:id="@+id/searchChats"
-            android:layout_width="wrap_content"
-            android:layout_height="46dp"
-            android:layout_gravity="end"
-            android:layout_marginEnd="10dp"
-            app:queryHint="标题" />
-
         <ImageView
-            android:id="@+id/deleteButton"
+            android:id="@+id/addIcon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:layout_marginEnd="10dp"
-            android:padding="@dimen/_5sdp"
-            android:src="@drawable/ic_baseline_delete_outline_24"
-            android:visibility="gone" />
+            android:layout_marginEnd="@dimen/_3sdp"
+            android:contentDescription="add"
+            android:padding="@dimen/_10sdp"
+            android:src="@drawable/ic_baseline_add_24"
+            app:tint="@color/black_white" />
 
-        <TextView
-            android:id="@+id/cancelText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/_5sdp"
-            android:padding="@dimen/_5sdp"
-            android:text="取消"
-            android:visibility="gone" />
-
-        <CheckBox
-            android:id="@+id/selectAllCheck"
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/search_prompt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:layout_marginEnd="10dp"
-            android:text="全部"
-            android:visibility="gone" />
-
+            android:layout_marginEnd="@dimen/_3sdp" />
     </com.google.android.material.appbar.MaterialToolbar>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floatingActionButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="add example"
-        android:layout_marginEnd="32dp"
-        android:layout_marginBottom="32dp"
-        android:clickable="true"
-        android:src="@drawable/ic_baseline_add_24"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerThread"
-        android:layout_width="0dp"
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScroll"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar"
-        app:layout_constraintVertical_bias="0.0"
-        app:spanCount="2"
-        tools:listitem="@layout/thread_card_item"
-        tools:spanCount="2" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/gideCard"
+                style="?attr/materialCardViewFilledStyle"
+                android:layout_width="@dimen/_80sdp"
+                android:layout_height="@dimen/_95sdp"
+                android:background="@drawable/into_back"
+                android:backgroundTint="#60B2FF"
+                app:cardCornerRadius="@dimen/_12sdp"
+                tools:ignore="MissingConstraints"
+                tools:layout_editor_absoluteX="147dp"
+                tools:layout_editor_absoluteY="64dp">
+
+                <ImageView
+                    android:layout_width="@dimen/_30sdp"
+                    android:layout_height="@dimen/_30sdp"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="@dimen/_15sdp"
+                    android:contentDescription="@string/dummy_button"
+                    android:src="@drawable/create_study_notes" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal|bottom"
+                    android:layout_marginBottom="@dimen/_10sdp"
+                    android:padding="@dimen/_5sdp"
+                    android:text="提示管理"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_12ssp" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/keys"
+                style="?attr/materialCardViewFilledStyle"
+                android:layout_width="@dimen/_80sdp"
+                android:layout_height="@dimen/_95sdp"
+                android:background="@drawable/into_back"
+                android:backgroundTint="#FF6060"
+                app:cardCornerRadius="@dimen/_12sdp"
+                tools:ignore="MissingConstraints"
+                tools:layout_editor_absoluteX="15dp"
+                tools:layout_editor_absoluteY="64dp">
+
+                <ImageView
+                    android:layout_width="@dimen/_30sdp"
+                    android:layout_height="@dimen/_30sdp"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="@dimen/_15sdp"
+                    android:contentDescription="@string/dummy_button"
+                    android:src="@drawable/ic_store" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal|bottom"
+                    android:layout_marginBottom="@dimen/_10sdp"
+                    android:padding="@dimen/_5sdp"
+                    android:text="购买密钥"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_12ssp" />
+            </com.google.android.material.card.MaterialCardView>
+            <!-- NestedScrollingChild goes here (NestedScrollView, RecyclerView, etc.). -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/shareCard"
+                style="?attr/materialCardViewFilledStyle"
+                android:layout_width="@dimen/_80sdp"
+                android:layout_height="@dimen/_95sdp"
+                android:background="@drawable/into_back"
+
+                android:backgroundTint="@color/gradient"
+                tools:ignore="MissingConstraints"
+                tools:layout_editor_absoluteX="279dp"
+                tools:layout_editor_absoluteY="64dp">
+
+                <ImageView
+                    android:layout_width="@dimen/_30sdp"
+                    android:layout_height="@dimen/_30sdp"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="@dimen/_15sdp"
+                    android:contentDescription="@string/dummy_button"
+                    android:src="@drawable/english_to_other_languages" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal|bottom"
+                    android:layout_marginBottom="@dimen/_10sdp"
+                    android:padding="@dimen/_5sdp"
+                    android:text="查看共享"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_12ssp" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <androidx.constraintlayout.helper.widget.Flow
+                android:id="@+id/flow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_10sdp"
+                app:constraint_referenced_ids="keys,gideCard,shareCard"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/lieText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="提示列表"
+                android:layout_marginTop="@dimen/_12sdp"
+                android:textSize="@dimen/_14ssp"
+                android:padding="@dimen/_5sdp"
+                android:layout_marginHorizontal="@dimen/_10sdp"
+
+                app:layout_constraintTop_toBottomOf="@id/flow"
+                app:drawableStartCompat="@drawable/grammar_correction"
+                android:drawablePadding="@dimen/_5sdp"
+                app:drawableTint="@color/black_white2" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/promptRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/_10sdp"
+                android:padding="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:background="@drawable/into_back"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/lieText"
+                app:layout_constraintVertical_bias="0.0"
+                app:spanCount="2"
+                tools:listitem="@layout/prompt_item" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_50sdp"
+        android:layout_marginHorizontal="@dimen/_10sdp"
+        android:layout_marginBottom="@dimen/_10sdp"
+        android:background="@drawable/into_back"
+        android:backgroundTint="@color/white_black"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/startText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="false"
+        android:text="开始"
+        android:textSize="@dimen/_14sdp"
+        app:layout_constraintBottom_toBottomOf="@+id/view"
+        app:layout_constraintEnd_toEndOf="@+id/view"
+        app:layout_constraintStart_toStartOf="@+id/view"
+        app:layout_constraintTop_toTopOf="@+id/view" />
 </androidx.constraintlayout.widget.ConstraintLayout>

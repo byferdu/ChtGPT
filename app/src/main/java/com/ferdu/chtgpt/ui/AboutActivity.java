@@ -75,7 +75,7 @@ public class AboutActivity extends AppCompatActivity {
             "* 联系 [QQ](mqqwpa://im/chat?chat_type=wpa&uin=2623476654)\n" +
             "* [知乎上的教程1](https://zhuanlan.zhihu.com/p/589983587)\n" +
             "* [知乎上的教程2](https://zhuanlan.zhihu.com/p/589642999)\n" +
-            "* [上淘宝买账号](https://m.tb.cn/h.Ukz10Nu?tk=26led4vW2z0)\n" +
+            "* [上淘宝买账号](https://m.tb.cn/h.Umrrw8k?tk=2Ss1d6v6FPy)\n" +
             "<br>\n" +
             "\n" +
             "<br>\n" +

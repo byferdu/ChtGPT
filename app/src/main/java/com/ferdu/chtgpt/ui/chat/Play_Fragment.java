@@ -86,7 +86,7 @@ public class Play_Fragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         FragmentPlayBinding binding = FragmentPlayBinding.inflate(inflater, container, false);
-        binding.materialToolbar.setNavigationOnClickListener(view -> requireActivity().finish());
+        binding.meMaterialToolbar.setNavigationOnClickListener(view -> requireActivity().finish());
 
         addLayoutListener(binding.getRoot(), binding.constraintLayout);
 

@@ -18,6 +18,7 @@ import com.ferdu.chtgpt.models.data.TypeAndExample;
 import com.ferdu.chtgpt.models.data.Types;
 import com.ferdu.chtgpt.models.data.User;
 import com.ferdu.chtgpt.repo.ChatRepository;
+import com.ferdu.chtgpt.ui.home.PromptModel;
 
 import java.util.List;
 
@@ -85,7 +86,21 @@ public class MyViewModel extends AndroidViewModel {
     public LiveData<TransModel> getTrans(String msg, int type) {
         return repositories.getTrans("https://v.api.aa1.cn/api/api-fanyi-yd/index.php", msg, type);
     }
-
+    public LiveData<List<PromptModel>> getPrompts() {
+        return database.promptDAO().getAll();
+    }
+    public LiveData<PromptModel> getAtPrompts(String s) {
+        return database.promptDAO().getAtQuery(s);
+    }
+    public LiveData<List<PromptModel>> getPromptSearch(String s) {
+        return database.promptDAO().getQuery("%"+s+"%");
+    }
+    public void updatePrompts(PromptModel model) {
+        database.promptDAO().updateD(model);
+    }
+    public void insertPrompts(PromptModel model) {
+        database.promptDAO().insertD(model);
+    }
     public LiveData<List<ChatModel>> getChatModels(int id) {
         return database.chatModelDao().getById(id);
     }

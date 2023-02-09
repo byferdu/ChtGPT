@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ferdu.chtgpt.R;
 import com.ferdu.chtgpt.models.data.ChatModel;
-import com.ferdu.chtgpt.ui.home.HomeFragment;
+import com.ferdu.chtgpt.ui.home.HistoryFragment;
 import com.ferdu.chtgpt.util.MyUtil;
 import com.ferdu.chtgpt.util.interfces.MyItemClickListener;
 import com.ferdu.chtgpt.util.interfces.MyItemLongClick;
@@ -32,7 +32,7 @@ public class AITextAdapter extends RecyclerView.Adapter<AITextAdapter.MyViewHold
     private final List<ChatModel> list;
     private static MyItemLongClick itemLongClick;
     public static boolean isMultiSelectMode = false;
-    private static MyItemClickListener<ChatModel> clickListener;
+    private  MyItemClickListener<ChatModel> clickListener;
     public static int selectAll = 0;
 
     public List<ChatModel> getList() {
@@ -216,8 +216,8 @@ public class AITextAdapter extends RecyclerView.Adapter<AITextAdapter.MyViewHold
             holder.aiCheckBox.setVisibility(View.VISIBLE);
         } else holder.aiCheckBox.setVisibility(View.GONE);
         boolean equals=false;
-        if (HomeFragment.recyclerViewOnClickData != null) {
-            equals = Boolean.TRUE.equals(HomeFragment.recyclerViewOnClickData.get(position));
+        if (HistoryFragment.recyclerViewOnClickData != null) {
+            equals = Boolean.TRUE.equals(HistoryFragment.recyclerViewOnClickData.get(position));
         }
         holder.aiCheckBox.setChecked(isMultiSelectMode && equals);
         if (isMultiSelectMode && selectAll != 0) {
@@ -232,6 +232,8 @@ public class AITextAdapter extends RecyclerView.Adapter<AITextAdapter.MyViewHold
         holder.textView5.setText("总共词元: " + list.get(position).getTotal_tokens());
     }
 
+
+
     @Override
     public int getItemCount() {
         return list.size();
@@ -242,7 +244,7 @@ public class AITextAdapter extends RecyclerView.Adapter<AITextAdapter.MyViewHold
     }
 
     public void setClickListener(MyItemClickListener<ChatModel> clickListener) {
-        AITextAdapter.clickListener = clickListener;
+        this.clickListener = clickListener;
     }
 
     //删除Notes
@@ -253,7 +255,7 @@ public class AITextAdapter extends RecyclerView.Adapter<AITextAdapter.MyViewHold
         notifyItemRemoved(position);
     }
 
-    static class MyViewHolder extends RecyclerView.ViewHolder {
+     class MyViewHolder extends RecyclerView.ViewHolder {
         TextView textView;
         TextView textView2;
         TextView textView3;

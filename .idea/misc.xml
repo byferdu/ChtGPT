@@ -33,6 +33,7 @@
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/friend_chat.xml" value="0.117" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/grammar_correction.xml" value="0.117" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/human_text_back.xml" value="0.1555" />
+        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/ic_account_circle.xml" value="0.203" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/ic_arrow_forward_ios_24.xml" value="0.204" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/ic_baseline_add_24.xml" value="0.19" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/ic_baseline_delete_outline_24.xml" value="0.24" />
@@ -45,11 +46,14 @@
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/ic_baseline_tune_24.xml" value="0.167" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/ic_content_copy_24.xml" value="0.204" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/ic_education.xml" value="0.19" />
+        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/ic_history.xml" value="0.316" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/ic_launcher_background.xml" value="0.155" />
+        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/ic_menu_camera.xml" value="0.166" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/ic_notifications_black_24dp.xml" value="0.155" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/ic_open_bot.xml" value="0.1665" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/ic_open_bot_round.xml" value="0.1485" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/ic_play_arrow_24.xml" value="0.204" />
+        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/ic_store.xml" value="0.173" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/interview_questions.xml" value="0.117" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/into_back.xml" value="0.1945" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/javascript_one_line_function.xml" value="0.117" />
@@ -75,6 +79,7 @@
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/restaurant_review_creator.xml" value="0.117" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/science_fiction_book_list_maker.xml" value="0.117" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/select_back.xml" value="0.24" />
+        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/side_nav_bar.xml" value="0.166" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/spreadsheet_creator.xml" value="0.117" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/sql_request.xml" value="0.117" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/drawable/sql_translate.xml" value="0.117" />
@@ -95,41 +100,52 @@
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout-v26/fragment_play.xml" value="0.159765625" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout-v26/layout_tune.xml" value="0.24947916666666667" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/activity_about.xml" value="0.7875" />
-        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/activity_chat.xml" value="0.24947916666666667" />
+        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/activity_chat.xml" value="0.152" />
+        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/activity_chat2.xml" value="0.176" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/activity_fullscreen.xml" value="0.24131944444444445" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/activity_login.xml" value="0.16631944444444444" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/activity_main.xml" value="0.19140625" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/activity_main2.xml" value="0.24947916666666667" />
+        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/add_poupe_window.xml" value="0.1" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/ai_text_layout.xml" value="0.2" />
+        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/app_bar_chat2.xml" value="0.19728171334431632" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/chat_item.xml" value="0.2484375" />
+        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/content_chat2.xml" value="0.152" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/conversation.xml" value="0.72" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/dialog_update_app_version.xml" value="1.0" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/example_view_item.xml" value="0.176" />
-        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/feedback_advice.xml" value="0.8" />
+        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/feedback_advice.xml" value="0.152" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/first_dialog.xml" value="2.171875" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/fragment_add_chat.xml" value="0.24947916666666667" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/fragment_add_example.xml" value="0.264" />
-        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/fragment_chat.xml" value="0.19728171334431632" />
+        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/fragment_chat.xml" value="0.24861111111111112" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/fragment_dashboard.xml" value="0.264" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/fragment_example_detail.xml" value="0.24947916666666667" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/fragment_feedback.xml" value="0.24131944444444445" />
-        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/fragment_home.xml" value="0.16631944444444444" />
-        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/fragment_me.xml" value="0.176" />
+        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/fragment_gallery.xml" value="0.19728171334431632" />
+        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/fragment_history.xml" value="0.12369791666666667" />
+        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/fragment_home.xml" value="0.176" />
+        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/fragment_me.xml" value="0.16631944444444444" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/fragment_notifications.xml" value="0.24947916666666667" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/fragment_play.xml" value="0.136" />
-        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/home_frag.xml" value="0.19645799011532125" />
+        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/fragment_slideshow.xml" value="0.19728171334431632" />
+        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/home_frag.xml" value="0.152" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/key_dialog.xml" value="1.2" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/layout_tune.xml" value="0.264" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/login_layout.xml" value="0.710691823899371" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/mode_select.xml" value="0.264" />
+        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/nav_header_chat2.xml" value="0.152" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/options_after_ins.xml" value="0.8" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/recycler_view_item.xml" value="0.4" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/recycler_view_item_1.xml" value="0.24947916666666667" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/select_try_or_not.xml" value="1.0" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/settings_activity.xml" value="0.24947916666666667" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/spinner_item.xml" value="0.24947916666666667" />
-        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/thread_card_item.xml" value="1.2" />
+        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/theard_item2.xml" value="0.12369791666666667" />
+        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/layout/thread_card_item.xml" value="0.176" />
+        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/menu/activity_main_drawer.xml" value="0.19728171334431632" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/menu/bottom_nav_menu.xml" value="0.24947916666666667" />
+        <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/menu/chat_activity2.xml" value="0.19728171334431632" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/menu/menu_setting.xml" value="0.24947916666666667" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/xml/mode_pref.xml" value="0.24947916666666667" />
         <entry key="..\:/AndroidProject/ChtGPT/app/src/main/res/xml/param_pref.xml" value="0.24947916666666667" />
