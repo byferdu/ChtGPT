@@ -21,7 +21,6 @@ import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.util.Objects;
-import java.util.concurrent.CountDownLatch;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -30,7 +29,6 @@ import retrofit2.Response;
 public class ChatRepository {
     private final Requests requests;
     private final ChatDatabase database;
-    final CountDownLatch latch = new CountDownLatch(1);
 
     public ChatRepository(ChatDatabase database) {
         this.database = database;
@@ -48,6 +46,7 @@ public class ChatRepository {
                 }else {
                     Gson gson = new Gson();
                     try {
+                        Log.d("ITAG", "onResponse: "+String.valueOf(response.errorBody().string()));
                         ResponseModel2.ErrorParent errorBean = gson.fromJson(String.valueOf(response.errorBody().string().toString()), ResponseModel2.ErrorParent.class);
                         ResponseModel2 responseModel2 = new ResponseModel2(null);
                         responseModel2.setError(errorBean);

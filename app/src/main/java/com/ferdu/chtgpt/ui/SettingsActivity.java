@@ -51,6 +51,9 @@ public class SettingsActivity extends AppCompatActivity {
                     .replace(R.id.settings, new SettingsFragment())
                     .commit();
         }
+        for (int i = 0; i < getResources().getStringArray(R.array.model_entries).length; i++) {
+            getResources().getStringArray(R.array.model_entries);
+        }
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
@@ -123,9 +126,7 @@ public class SettingsActivity extends AppCompatActivity {
                             .setPositiveButton("确定", (dialog, which) -> {
                                 LCUser.logOut();
                                 logout.setVisible(false);
-                            }).setNegativeButton("取消", (dialog, which) -> {
-                                dialog.dismiss();
-                            });
+                            }).setNegativeButton("取消", (dialog, which) -> dialog.dismiss());
                     builder.show();
                     return true;
                 });

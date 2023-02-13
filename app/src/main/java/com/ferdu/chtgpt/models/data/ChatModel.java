@@ -16,6 +16,7 @@ public class ChatModel {
     private Date createTime=new Date(new java.util.Date().getTime());
     private String AIText;
     private String AITransText;
+    private String model;
     private int prompt_tokens;
     private int completion_tokens = 0;
     private int total_tokens;
@@ -65,13 +66,15 @@ public class ChatModel {
         this.AIText = AIText;
     }
 
-    public ChatModel(int chatThreadId, String meText, String AIText, int prompt_tokens, int completion_tokens, int total_tokens) {
+    public ChatModel(int chatThreadId, String meText, String AIText, int prompt_tokens, int completion_tokens,
+                     int total_tokens,String model) {
         this.chatThreadId = chatThreadId;
         this.meText = meText;
         this.AIText = AIText;
         this.prompt_tokens = prompt_tokens;
         this.completion_tokens = completion_tokens;
         this.total_tokens = total_tokens;
+        this.model = model;
     }
 
 
@@ -107,6 +110,11 @@ public class ChatModel {
         this.AIText = AIText;
     }
 
+    public String getModel() {
+        return model;
+    }
 
-
+    public void setModel(String model) {
+        this.model = model;
+    }
 }

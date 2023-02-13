@@ -15,14 +15,6 @@
         android:padding="16dp"
         android:gravity="center_horizontal" />
 
-    <TextView
-        android:id="@+id/tv_add_example"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="添加例子"
-        android:textSize="16sp"
-        android:padding="16dp"
-        android:gravity="center_horizontal" />
 
     <TextView
         android:id="@+id/tv_add_model"
@@ -38,6 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="添加密钥"
+        android:visibility="gone"
         android:textSize="16sp"
         android:padding="16dp"
         android:gravity="center_horizontal" />

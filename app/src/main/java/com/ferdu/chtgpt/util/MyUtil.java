@@ -32,6 +32,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 import io.noties.markwon.AbstractMarkwonPlugin;
 import io.noties.markwon.LinkResolverDef;
@@ -184,39 +185,26 @@ public class MyUtil {
                     } else if (editText.getText().toString().contains("sk-")) {
                         progressBar.setVisibility(View.VISIBLE);
                         Log.d("TAG1213", "onCreate: " + sharedPreferences.getString("token", ""));
-                        myViewModel.getTex("Bearer " + editText.getText().toString()
-                                , new ReqModel()).observe(context, responseData -> {
-                            if (responseData.getErrorMessage() == null) {
-                                if (responseData.getError() != null) {
-                                    Toast.makeText(context, responseData.getError().getError().getType(), Toast.LENGTH_SHORT).show();
-                                    progressBar.setVisibility(View.GONE);
-                                    return;
-                                }
-                                if (responseData.getChoices() == null) {
-                                    Toast.makeText(context, "检查密钥过程中出错了🤨", Toast.LENGTH_SHORT).show();
-                                    progressBar.setVisibility(View.GONE);
-                                    return;
-                                }
-                                SharedPreferences.Editor edit = sharedPreferences.edit();
-                                edit.putString("key", "Bearer " + editText.getText().toString());
-                                edit.apply();
-                                Toast.makeText(context, "保存成功！🤗", Toast.LENGTH_SHORT).show();
-                                progressBar.setVisibility(View.GONE);
-                                try {
-                                    Field field = Objects.requireNonNull(dialogInterface.getClass().getSuperclass()).getDeclaredField("mShowing");
-                                    field.setAccessible(true);
-                                    field.set(dialogInterface, true);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                                dialogInterface.dismiss();
-                            } else {
-                                editText.setError("错误密钥，检查你的密钥");
-                                Toast.makeText(context, responseData.getErrorMessage(), Toast.LENGTH_SHORT).show();
-                                progressBar.setVisibility(View.GONE);
+                        if (requestTest(myViewModel, editText.getText().toString(), new ReqModel(), context)) {
+                            SharedPreferences.Editor edit = getShared(context).edit();
+                            edit.putString("key", "Bearer " + editText.getText().toString());
+                            edit.apply();
+                            Toast.makeText(context, "操作成功！🤗", Toast.LENGTH_SHORT).show();
+                            progressBar.setVisibility(View.GONE);
+                            try {
+                                Field field = Objects.requireNonNull(dialogInterface.getClass().getSuperclass()).getDeclaredField("mShowing");
+                                field.setAccessible(true);
+                                field.set(dialogInterface, true);
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
+                            dialogInterface.dismiss();
+                        }else {
+                            progressBar.setVisibility(View.GONE);
+                            editText.setError("错误密钥，检查你的密钥");
+                            Toast.makeText(context, "错误密钥，检查你的密钥🤨", Toast.LENGTH_SHORT).show();
+                        }
 
-                        });
                     } else {
                         progressBar.setVisibility(View.GONE);
                         editText.setError("错误密钥，检查你的密钥");
@@ -266,7 +254,6 @@ public class MyUtil {
         if (l >= delayTime) {
             flag = true;
         }
-
         return flag;
     }
 
@@ -274,6 +261,33 @@ public class MyUtil {
         lastClickTime = curClickTime;
     }
 
+    public static boolean requestTest(MyViewModel myViewModel,String key,ReqModel reqModel , FragmentActivity context ) {
+     //   ProgressBar progressBar = new MyProgressBar(context);
+        if (Objects.equals(key, "key")) {
+            key = MyUtil.getShared(context).getString("key", "");
+        }
+        AtomicReference<Boolean> isSuccess = new AtomicReference<>(false);
+        myViewModel.getTex("Bearer " + key
+                , reqModel).observe(context, responseData -> {
+            if (responseData.getErrorMessage() == null) {
+                if (responseData.getError() != null) {
+                    Toast.makeText(context, responseData.getError().getError().getMessage(), Toast.LENGTH_SHORT).show();
+                    isSuccess.set(false);
+                    return;
+                }
+                if (responseData.getChoices() == null) {
+                    isSuccess.set(false);
+                    return;
+                }
+                isSuccess.set(true);
+            } else {
+                Toast.makeText(context, responseData.getErrorMessage(), Toast.LENGTH_SHORT).show();
+                isSuccess.set(false);
+            }
+
+        });
+        return isSuccess.get();
+    }
     public static boolean isNotFastClick2(int delayTime) {
         boolean flag = false;
         long curClickTime = System.currentTimeMillis();

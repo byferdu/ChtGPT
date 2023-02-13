@@ -35,7 +35,18 @@ public class PromptsAdapter extends RecyclerView.Adapter<PromptsAdapter.PromptVi
     public void setClickListener(MyItemClickListener<PromptModel> clickListener) {
         this.clickListener = clickListener;
     }
-
+    public void updateData(List<PromptModel> dataList,boolean isQuery) {
+      //  this.prompts.clear();
+        if (isQuery) {
+            this.prompts = dataList;
+            notifyDataSetChanged();
+            return;
+        }
+        notifyItemRangeRemoved(0, dataList.size());
+        this.prompts = dataList;
+        notifyItemRangeChanged(0, dataList.size());
+        //notifyDataSetChanged();
+    }
     @NonNull
     @Override
     public PromptViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -65,7 +76,9 @@ public class PromptsAdapter extends RecyclerView.Adapter<PromptsAdapter.PromptVi
         }
 
         public void onBind(List<PromptModel> model) {
-            itemView.setOnClickListener(v -> clickListener.onItemClicked(model.get(getAdapterPosition()), false, getAdapterPosition()));
+            itemView.setOnClickListener(v -> {
+                if (model.size()>0)
+                clickListener.onItemClicked(model.get(getAdapterPosition()), false, getAdapterPosition());});
 
         }
     }

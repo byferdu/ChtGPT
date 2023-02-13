@@ -13,6 +13,7 @@ import com.ferdu.chtgpt.models.TransModel;
 import com.ferdu.chtgpt.models.data.ChatModel;
 import com.ferdu.chtgpt.models.data.ChatThread;
 import com.ferdu.chtgpt.models.data.Example2;
+import com.ferdu.chtgpt.models.data.Model;
 import com.ferdu.chtgpt.models.data.TreadAndChats;
 import com.ferdu.chtgpt.models.data.TypeAndExample;
 import com.ferdu.chtgpt.models.data.Types;
@@ -89,6 +90,13 @@ public class MyViewModel extends AndroidViewModel {
     public LiveData<List<PromptModel>> getPrompts() {
         return database.promptDAO().getAll();
     }
+    public LiveData<Integer> getPromptCount() {
+        return database.promptDAO().getPromptCount();
+    }
+
+    public LiveData<List<Model>> getModels() {
+        return database.modelDao().getAll();
+    }
     public LiveData<PromptModel> getAtPrompts(String s) {
         return database.promptDAO().getAtQuery(s);
     }
@@ -160,6 +168,9 @@ public class MyViewModel extends AndroidViewModel {
 
     public void insertType(Types... type) {
         repositories.insertData(database.typeDao(), type);
+    }
+    public void insertModel(Model... models) {
+        repositories.insertData(database.modelDao(), models);
     }
 
     public void insertTypeAndEx(TypeAndExample... type) {

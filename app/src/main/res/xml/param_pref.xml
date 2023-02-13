@@ -4,7 +4,6 @@
     >
     <PreferenceCategory app:title="详细参数">
         <ListPreference
-            app:defaultValue="model"
             app:entries="@array/model_entries"
             app:entryValues="@array/model_values"
             app:key="model"

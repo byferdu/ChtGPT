@@ -20,6 +20,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 
 import com.ferdu.chtgpt.R;
 import com.ferdu.chtgpt.databinding.AddPoupeWindowBinding;
@@ -32,9 +33,13 @@ import com.ferdu.chtgpt.util.update.UpdateApk;
 import com.ferdu.chtgpt.util.update.impl.UpdateVersionShowDialog;
 import com.ferdu.chtgpt.viewmodel.MyViewModel;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 import cn.leancloud.LCObject;
@@ -50,14 +55,20 @@ import io.reactivex.disposables.Disposable;
 public class HomeFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
+
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    public static boolean isFirst = true;
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private boolean scrollingUp = false;
+    private boolean isSearching = false;
+
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    private final List<PromptModel> list = new ArrayList<>();
+    public static final List<PromptModel> lists = new ArrayList<>();
+    private PromptsAdapter promptsAdapter;
+    private com.ferdu.chtgpt.databinding.FragmentHomeBinding binding;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -94,32 +105,41 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        FragmentHomeBinding binding = FragmentHomeBinding.inflate(inflater, container, false);
+        binding = FragmentHomeBinding.inflate(inflater, container, false);
         MyViewModel myViewModel = new ViewModelProvider(this).get(MyViewModel.class);
         SharedPreferences keyShared = MyUtil.getShared(requireContext());
         SharedPreferences.Editor edit = keyShared.edit();
         binding.view.setOnClickListener(v -> {
             if (!keyShared.getString("key", "").isEmpty()) {
                 startActivity(new Intent(requireActivity(), ChatActivity.class));
-            } else MyUtil.ShowSetKeyDialog(requireActivity(), binding.getRoot(), myViewModel, false);
+            } else
+                MyUtil.ShowSetKeyDialog(requireActivity(), binding.getRoot(), myViewModel, false);
         });
+        promptsAdapter = new PromptsAdapter(lists);
+
         if (AppUtils.judgmentDate(System.currentTimeMillis(), keyShared.getLong("versionDate", 1000))) {
             edit.putLong("versionDate", System.currentTimeMillis());
             edit.putBoolean("isCheckVersion", false);
             edit.apply();
         }
-        PromptsAdapter promptsAdapter = new PromptsAdapter(list);
-        myViewModel.getPrompts().observe(getViewLifecycleOwner(), promptModels -> {
-            if (promptModels != null ) {
-                if (list.size()>0){
-                    int size = list.size();
-                    list.clear();
-                    promptsAdapter.notifyItemRangeRemoved(0, size);
+        if (lists.size() < 1)
+            myViewModel.getPrompts().observe(getViewLifecycleOwner(), promptModels -> {
+                if (promptModels != null) {
+                    lists.addAll(promptModels);
+                    if (isFirst) {
+                        Collections.shuffle(lists);
+                        isFirst = false;
+                    }
+                    promptsAdapter.updateData(lists, false);
                 }
-                list.addAll(promptModels);
-                promptsAdapter.notifyItemRangeChanged(0, promptModels.size());
-            }
-        });
+            });
+        else promptsAdapter.updateData(lists, false);
+
+        // binding.promptRecycler.setItemAnimator(new DefaultItemAnimator());
+        //设置添加、移除时间为1s
+        //Objects.requireNonNull(binding.promptRecycler.getItemAnimator()).setAddDuration(650);
+        //  binding.promptRecycler.getItemAnimator().setRemoveDuration(650);
+        binding.gideCard.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_navigation_home_to_historyFragment));
         if (!keyShared.getBoolean("isCheckVersion", false)) {
             LCQuery<LCObject> query = new LCQuery<>("UpdateApk");
             query.findInBackground().subscribe(new Observer<List<LCObject>>() {
@@ -151,7 +171,9 @@ public class HomeFragment extends Fragment {
 
                 }
             });
-            LCQuery<LCObject> query2 = new LCQuery<>("Prompt").limit(200);
+            Date date = new Date();
+            date.setTime(keyShared.getLong("versionDate", 1000));
+            LCQuery<LCObject> query2 = new LCQuery<>("Prompt").limit(200).whereGreaterThan("updatedAt", date);
             query2.findInBackground().subscribe(new Observer<List<LCObject>>() {
                 @Override
                 public void onSubscribe(Disposable d) {
@@ -159,21 +181,27 @@ public class HomeFragment extends Fragment {
                 @Override
                 public void onNext(List<LCObject> lcObjects) {
                     List<PromptModel> promptModels = new ArrayList<>();
-                    Date date = new Date();
-                    date.setTime(keyShared.getLong("versionDate", 1000));
+
                     for (int i = 0; i < lcObjects.size(); i++) {
                         promptModels.add(new PromptModel(lcObjects.get(i).getObjectId(), lcObjects.get(i).get("act").toString()
                                 , lcObjects.get(i).get("prompt").toString()));
-                        Log.d("TAGupdate", "onNext: "+lcObjects.get(i).getUpdatedAt());
+                        Log.d("TAGupdate", "onNext: " + lcObjects.get(i).getUpdatedAt());
                         if (lcObjects.get(i).getUpdatedAt().after(date)) {
-                            // myViewModel.insertPrompts(promptModels.get(i));
                             if (myViewModel.getAtPrompts(lcObjects.get(i).getObjectId()) != null) {
                                 myViewModel.updatePrompts(promptModels.get(i));
-                            }else  myViewModel.insertPrompts(promptModels.get(i));
+                            } else{
+                                lists.add(promptModels.get(i));
+                                myViewModel.insertPrompts(promptModels.get(i));}
                         }
                     }
-                    list.addAll(promptModels);
-                    promptsAdapter.notifyItemRangeChanged(0, promptModels.size());
+
+                   // lists.addAll(promptModels);
+                    if (isFirst) {
+                        Collections.shuffle(lists);
+                        // generateRandomData();
+                        isFirst=false;
+                    }
+                    promptsAdapter.updateData(lists, false);
                 }
 
                 @Override
@@ -205,6 +233,11 @@ public class HomeFragment extends Fragment {
             binding.flow.setVisibility(View.GONE);
             binding.startText.setVisibility(View.GONE);
             binding.view.setVisibility(View.GONE);
+            isSearching = true;
+            binding.addIcon.setVisibility(View.INVISIBLE);
+            binding.addIcon.setEnabled(false);
+
+            // promptsAdapter.updateData(list);
             requireActivity().findViewById(R.id.nav_view).setVisibility(View.GONE);
         });
         binding.addIcon.setOnClickListener(this::initPopup);
@@ -213,11 +246,16 @@ public class HomeFragment extends Fragment {
             binding.startText.setVisibility(View.VISIBLE);
             binding.view.setVisibility(View.VISIBLE);
             requireActivity().findViewById(R.id.nav_view).setVisibility(View.VISIBLE);
+            isSearching = false;
+            binding.addIcon.setEnabled(true);
+            binding.addIcon.setVisibility(View.VISIBLE);
+            promptsAdapter.updateData(lists, false);
             binding.searchPrompt.setQuery("", false);
             binding.searchPrompt.clearFocus();
             // 隐藏键盘
             InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(binding.searchPrompt.getWindowToken(), 0);
+            //promptsAdapter.updateData(generateRandomData());
             return false;
         });
         binding.searchPrompt.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -228,16 +266,17 @@ public class HomeFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                if (newText.isEmpty()) {
+
+                    promptsAdapter.updateData(lists, false);
+                    return true;
+                }
                 myViewModel.getPromptSearch(newText).observe(getViewLifecycleOwner(), promptModels -> {
                     if (promptModels != null) {
-                        int size = list.size();
-                        list.clear();
-                        promptsAdapter.notifyItemRangeRemoved(0,size);
-                        list.addAll(promptModels);
-                        promptsAdapter.notifyItemRangeChanged(0, promptModels.size());
+                        // promptsAdapter.updateData(list);
+                        promptsAdapter.updateData(promptModels, true);
                     }
                 });
-
                 return true;
             }
         });
@@ -278,13 +317,14 @@ public class HomeFragment extends Fragment {
                 Intent intent = new Intent(requireActivity(), ChatActivity.class);
                 intent.putExtra("prompt", model.getPrompt());
                 startActivity(intent);
-            } else MyUtil.ShowSetKeyDialog(requireActivity(), binding.getRoot(), myViewModel, false);
+            } else
+                MyUtil.ShowSetKeyDialog(requireActivity(), binding.getRoot(), myViewModel, false);
         });
         return binding.getRoot();
     }
 
     private void initPopup(View parentView) {
-        View contentView = LayoutInflater.from(requireContext()).inflate(R.layout.add_poupe_window, null);
+        View contentView = LayoutInflater.from(requireContext()).inflate(R.layout.add_poupe_window, null,false);
         PopupWindow popupWindow = new PopupWindow(contentView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
 
         popupWindow.setOutsideTouchable(true);
@@ -294,20 +334,39 @@ public class HomeFragment extends Fragment {
         AddPoupeWindowBinding binding1 = AddPoupeWindowBinding.bind(contentView);
         binding1.tvAddTip.setOnClickListener(v -> {
             // 添加提示的点击事件
+            Bundle bundle = new Bundle();
+            bundle.putInt("insertType", 0);
+            Navigation.findNavController(binding.getRoot()).navigate(R.id.action_navigation_home_to_addExampleFragment, bundle);
             popupWindow.dismiss();
         });
-        binding1.tvAddExample.setOnClickListener(v -> {
-            // 添加例
 
-            popupWindow.dismiss();
-        });
         binding1.tvAddModel.setOnClickListener(v -> {
             // 添加模型的点击事件
+            Bundle bundle = new Bundle();
+            bundle.putInt("insertType", 1);
+            Navigation.findNavController(binding.getRoot()).navigate(R.id.action_navigation_home_to_addExampleFragment, bundle);
+
+
             popupWindow.dismiss();
         });
         binding1.tvAddKey.setOnClickListener(v -> {
             // 添加密钥的点击事件
+            Bundle bundle = new Bundle();
+            bundle.putInt("insertType", 2);
+            Navigation.findNavController(binding.getRoot()).navigate(R.id.action_navigation_home_to_addExampleFragment, bundle);
             popupWindow.dismiss();
         });
     }
+
+    private Date getDateWithDateString(String dateString) throws ParseException {
+        DateFormat df = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.CHINA);
+        return df.parse(dateString);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+    }
+
 }

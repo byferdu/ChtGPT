@@ -1,29 +1,6 @@
 <resources>
     <!-- Reply Preference -->
-    <string-array name="mode_entries">
-        <item>聊天</item>
-        <item>完成</item>
-        <item>综述模式</item>
-        <item>文本到命令</item>
-        <item>问答</item>
-        <item>语法改正</item>
-        <item>翻译</item>
-        <item>代码</item>
-        <item>解析数据</item>
-        <item>自然语言到Python</item>
-        <item>解释代码</item>
-    </string-array>
 
-    <string-array name="mode_values">
-        <item>conversation</item>
-        <item>completion</item>
-        <item>summarization</item>
-        <item>conversion</item>
-        <item>Q_A</item>
-        <item>transformation</item>
-        <item>n_l_py</item>
-        <item>explain_code</item>
-    </string-array>
     <string-array name="model_entries">
         <item>text-chat-davinci-002-20230126</item>
         <item>text-davinci-003</item>

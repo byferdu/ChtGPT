@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -42,7 +43,6 @@ import com.ferdu.chtgpt.models.data.ChatThread;
 import com.ferdu.chtgpt.network.HttpClient;
 import com.ferdu.chtgpt.ui.home.BackPressedListener;
 import com.ferdu.chtgpt.ui.home.HistoryFragment;
-import com.ferdu.chtgpt.util.MyProgressBar;
 import com.ferdu.chtgpt.viewmodel.MyViewModel;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -80,7 +80,7 @@ public class ChatFragment extends Fragment {
     int exampleId = -1;
     private static final TuneModel tuneModels = new TuneModel();
     private int threadIdField = -1;
-    private MyProgressBar progressBar;
+    private ProgressBar progressBar;
     private FragmentChatBinding binding;
 
     public List<ChatModel> getList() {
@@ -139,17 +139,18 @@ public class ChatFragment extends Fragment {
         SharedPreferences sharedPreferences2 = PreferenceManager.getDefaultSharedPreferences(requireContext());
         //String name = sharedPreferences2.getString("mode", "");
         myViewModel = new ViewModelProvider(this).get(MyViewModel.class);
-
-        new HttpClient(requireContext());
+        HttpClient.setContext(requireContext());
         Handler handler = new Handler(Looper.getMainLooper());
         sharedPreferences = requireActivity().getSharedPreferences("key_1", MODE_PRIVATE);
         RecyclerView recyclerView = binding.recyclerView;
         progressBar = binding.progressBar;
         button = binding.button;
         Log.d("QIGUAI", "Fragment onCreateView: ");
+        myAdapter = new AITextAdapter(binding.getRoot().getContext(), list);
 
         binding.startConversation.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_stop_24));
         binding.probText.setOrientation(LinearLayout.HORIZONTAL);
+        myAdapter.setRecyclerView(recyclerView);
         binding.startConversation.setOnClickListener(v -> {
             if (binding.startConversation.getTag().toString().equals("play")) {
                 binding.startConversation.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_stop_24));
@@ -266,7 +267,6 @@ public class ChatFragment extends Fragment {
             binding.textView.setVisibility(View.VISIBLE);
         }
 
-        myAdapter = new AITextAdapter(binding.getRoot().getContext(), list);
 
         recyclerView.setAdapter(myAdapter);
 
@@ -321,8 +321,8 @@ public class ChatFragment extends Fragment {
                 editText.setError("输入框不能为空！");
                 return;
             }
-            button.setEnabled(false);
-            progressBar.show(40000, button);
+           // button.setEnabled(false);
+            showOrCancelProgress(progressBar, button, true);
             Log.d(TAG2, "onCreateView: progressBar.show");
             String s = editText.getText().toString();
             ReqModel reqModel = new ReqModel();
@@ -456,9 +456,10 @@ public class ChatFragment extends Fragment {
     private void insertChat(String s, AITextAdapter myAdapter, RecyclerView recyclerView, ResponseModel2 resModel, int treadId, String model) {
         if (isExecute) {
             String text = resModel.getChoices().get(0).getText();
+            Log.d(TAG, "insertChat: "+resModel.getModel()+"\n\n"+model);
             ChatModel chatModel1 = new ChatModel(treadId, s, text
                     , resModel.getUsage().getPromptTokens(), resModel.getUsage().getCompletionTokens()
-                    , resModel.getUsage().getTotalTokens());
+                    , resModel.getUsage().getTotalTokens(),resModel.getModel());
 
             myViewModel.getUser().observe(getViewLifecycleOwner(), user -> {
                 if (isExecute2) {
@@ -547,7 +548,7 @@ public class ChatFragment extends Fragment {
                 Log.d(TAG2, "getResponseText: resModel != null");
                 if (resModel.getError() != null) {
                     Toast.makeText(getContext(), resModel.getError().getError().getType(), Toast.LENGTH_SHORT).show();
-                    progressBar.cancel(button);
+                    showOrCancelProgress(progressBar, button, false);
                     return;
                 }
                 if (resModel.getChoices() != null) {
@@ -560,7 +561,7 @@ public class ChatFragment extends Fragment {
                     Log.d(TAG2, "getResponseText: text:" + texts);
                     String temp = texts.length() >= 3 ? texts.substring(0, 2) : "";
                     if (temp.contains("\n")) {
-                        texts = texts.substring(2);
+                        texts = texts.trim();
                     }
                     resModel.getChoices().get(0).setText(texts);
                     if (tuneModels.isTrans()) {
@@ -584,7 +585,7 @@ public class ChatFragment extends Fragment {
                 Toast.makeText(requireContext(), resModel.getErrorMessage(), Toast.LENGTH_SHORT).show();
             }
             Log.d(TAG2, "getResponseText: After trans:" + texts);
-            progressBar.cancel(button);
+            showOrCancelProgress(progressBar, button, false);
         });
         Log.d(TAG2, "getResponseText: After getResponseText:" + texts);
     }
@@ -656,4 +657,17 @@ public class ChatFragment extends Fragment {
         myAdapter.notifyDataSetChanged();
         Log.d("NOACTIVITY", "cancelSelected: ");
     }
+
+    private void showOrCancelProgress(ProgressBar progressBar, AppCompatImageButton button,boolean show) {
+        if (show) {
+            progressBar.setVisibility(View.VISIBLE);
+            button.setEnabled(false);
+            button.setAlpha(0.4f);
+        } else {
+            button.setEnabled(true);
+            progressBar.setVisibility(View.GONE);
+            button.setAlpha(1f);
+        }
+    }
+
 }

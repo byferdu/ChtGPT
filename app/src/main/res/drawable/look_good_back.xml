@@ -5,7 +5,11 @@
 <!--        android:endColor="#ccfbff"-->
 <!--        android:startColor="#ef96c5" />-->
     <gradient
-        android:angle="-45"
-        android:endColor="@color/look_good_back1"
-        android:startColor="@color/look_good_back2" />
+        android:angle="-90"
+        android:endColor="@color/nav_back"
+        android:startColor="#F6F6F6" />
+<!--    <stroke-->
+<!--        android:width="0.2dp"-->
+<!--        android:color="@color/black_white2" />-->
+    <corners android:radius="@dimen/_10sdp" />
 </shape>

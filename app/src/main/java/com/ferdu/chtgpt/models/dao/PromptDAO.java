@@ -13,6 +13,8 @@ public interface PromptDAO extends BaseDao<PromptModel>{
     LiveData<List<PromptModel>> getAll();
     @Query("SELECT * FROM PromptModel Where act like :search or prompt like :search")
     LiveData<List<PromptModel>> getQuery(String search);
+    @Query("SELECT COUNT(*) FROM PromptModel")
+    LiveData<Integer> getPromptCount();
 
     @Query("SELECT * FROM PromptModel Where id=:search")
     LiveData<PromptModel> getAtQuery(String search);

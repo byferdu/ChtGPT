@@ -9,7 +9,14 @@
         android:id="@+id/navigation_home"
         android:name="com.ferdu.chtgpt.ui.home.HomeFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/home_frag" />
+        tools:layout="@layout/home_frag" >
+        <action
+            android:id="@+id/action_navigation_home_to_historyFragment"
+            app:destination="@id/historyFragment" />
+        <action
+            android:id="@+id/action_navigation_home_to_addExampleFragment"
+            app:destination="@id/addExampleFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_dashboard"
@@ -53,4 +60,9 @@
         android:name="com.ferdu.chtgpt.ui.chat.ChatActivity"
         android:label="activity_chat"
         tools:layout="@layout/activity_chat" />
+    <fragment
+        android:id="@+id/addExampleFragment"
+        android:name="com.ferdu.chtgpt.ui.AddExampleFragment"
+        android:label="fragment_add_example"
+        tools:layout="@layout/fragment_add_example" />
 </navigation>

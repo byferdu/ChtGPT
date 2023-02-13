@@ -43,6 +43,16 @@ public class AITextAdapter extends RecyclerView.Adapter<AITextAdapter.MyViewHold
         this.list = list;
     }
 
+    private RecyclerView recyclerView;
+
+    public RecyclerView getRecyclerView() {
+        return recyclerView;
+    }
+
+    public void setRecyclerView(RecyclerView recyclerView) {
+        this.recyclerView = recyclerView;
+    }
+
     @NonNull
     @Override
     public AITextAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -88,7 +98,7 @@ public class AITextAdapter extends RecyclerView.Adapter<AITextAdapter.MyViewHold
                 .setPopSpanCount(5)// 设置操作弹窗每行个数 default 5
                 .setPopStyle(R.drawable.copy_back/*操作弹窗背景*/, com.xiaoguang.selecttext.R.drawable.ic_arrow/*箭头图片*/)// 设置操作弹窗背景色、箭头图片
                 //.setSelectTextLength(2)// 首次选中文本的长度，需要设置setSelectAll(false) default 2
-                .setPopSpanCount(1)// 弹窗延迟时间 default 100毫秒
+                //.setPopSpanCount(1)// 弹窗延迟时间 default 100毫秒
                 .addItem(0/*item的图标*/, "复制"/*item的描述*/,
                         () -> {
                             Log.i("SelectTextHelper", "复制");
@@ -110,7 +120,7 @@ public class AITextAdapter extends RecyclerView.Adapter<AITextAdapter.MyViewHold
         mSelectableTextHelper.setSelectListener(new SelectTextHelper.OnSelectListener() {
             @Override
             public void onClick(View v) {
-
+                mSelectableTextHelper2.reset();
             }
 
             @Override
@@ -157,7 +167,7 @@ public class AITextAdapter extends RecyclerView.Adapter<AITextAdapter.MyViewHold
         mSelectableTextHelper2.setSelectListener(new SelectTextHelper.OnSelectListener() {
             @Override
             public void onClick(View v) {
-
+                mSelectableTextHelper2.reset();
             }
 
             @Override
@@ -200,7 +210,10 @@ public class AITextAdapter extends RecyclerView.Adapter<AITextAdapter.MyViewHold
 
             }
         });
-
+            getRecyclerView().setOnClickListener(v -> {
+                mSelectableTextHelper.destroy();
+                mSelectableTextHelper2.destroy();
+            });
         return myViewHolder;
     }
 
@@ -230,6 +243,7 @@ public class AITextAdapter extends RecyclerView.Adapter<AITextAdapter.MyViewHold
         holder.textView3.setText("提问词元: " + list.get(position).getPrompt_tokens());
         holder.textView4.setText("完成词元: " + list.get(position).getCompletion_tokens());
         holder.textView5.setText("总共词元: " + list.get(position).getTotal_tokens());
+        holder.textView30.setText(list.get(position).getModel());
     }
 
 
@@ -261,6 +275,7 @@ public class AITextAdapter extends RecyclerView.Adapter<AITextAdapter.MyViewHold
         TextView textView3;
         TextView textView4;
         TextView textView5;
+        TextView textView30;
         CheckBox aiCheckBox;
 
         public MyViewHolder(@NonNull View itemView) {
@@ -270,6 +285,7 @@ public class AITextAdapter extends RecyclerView.Adapter<AITextAdapter.MyViewHold
             textView3 = itemView.findViewById(R.id.textView7);
             textView4 = itemView.findViewById(R.id.textView8);
             textView5 = itemView.findViewById(R.id.textView9);
+            textView30 = itemView.findViewById(R.id.textView30);
             aiCheckBox = itemView.findViewById(R.id.aiCheckBox);
         }
 

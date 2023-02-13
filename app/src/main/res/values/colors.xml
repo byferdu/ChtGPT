@@ -22,7 +22,7 @@
     <color name="purple">#5436da</color>
     <color name="pink">#407C29</color>
     <color name="red">#ef4146</color>
-    <color name="human_text_back">#F4F4F4</color>
+    <color name="human_text_back">#F4F6F8</color>
     <color name="into_back_color">#F4F6F8</color>
     <color name="pageBackground">#fff</color>
     <color name="nav_back" tools:ignore="MissingDefaultResource">#eaf4fd</color>
