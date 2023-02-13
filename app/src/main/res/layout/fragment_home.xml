@@ -30,7 +30,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:background="@color/editBack"
             app:showDividers="middle"
             tools:layout_editor_absoluteX="305dp"
             tools:layout_editor_absoluteY="8dp" />
@@ -161,12 +160,11 @@
                 android:id="@+id/lieText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="提示列表"
+                android:text="提示语列表 (prompts)"
                 android:layout_marginTop="@dimen/_12sdp"
                 android:textSize="@dimen/_14ssp"
                 android:padding="@dimen/_5sdp"
                 android:layout_marginHorizontal="@dimen/_10sdp"
-
                 app:layout_constraintTop_toBottomOf="@id/flow"
                 app:drawableStartCompat="@drawable/grammar_correction"
                 android:drawablePadding="@dimen/_5sdp"

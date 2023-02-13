@@ -236,6 +236,7 @@ public class HomeFragment extends Fragment {
             isSearching = true;
             binding.addIcon.setVisibility(View.INVISIBLE);
             binding.addIcon.setEnabled(false);
+            binding.searchPrompt.setBackgroundResource(R.drawable.edit_back);
 
             // promptsAdapter.updateData(list);
             requireActivity().findViewById(R.id.nav_view).setVisibility(View.GONE);
@@ -246,6 +247,7 @@ public class HomeFragment extends Fragment {
             binding.startText.setVisibility(View.VISIBLE);
             binding.view.setVisibility(View.VISIBLE);
             requireActivity().findViewById(R.id.nav_view).setVisibility(View.VISIBLE);
+            binding.searchPrompt.setBackgroundColor(Color.TRANSPARENT);
             isSearching = false;
             binding.addIcon.setEnabled(true);
             binding.addIcon.setVisibility(View.VISIBLE);

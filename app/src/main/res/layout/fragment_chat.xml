@@ -145,7 +145,7 @@
                 android:gravity="top|start"
                 android:background="@drawable/into_back"
                 android:backgroundTint="@color/white_black"
-                android:hint="开始"
+                android:hint="开始对话"
                 android:maxLines="6"
                 android:padding="15dp" />
 

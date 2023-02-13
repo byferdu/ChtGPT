@@ -42,7 +42,7 @@ public class HttpClient {
         okHttpClient = new OkHttpClient.Builder()
                 .connectTimeout(REQUEST_TIMEOUT_DURATION, TimeUnit.MILLISECONDS)
                 .readTimeout(REQUEST_TIMEOUT_DURATION, TimeUnit.MILLISECONDS)
-                .addInterceptor(new MyInterceptor(context))
+                //.addInterceptor(new MyInterceptor(context))
                 .build();
 
         if (retrofit == null) {
