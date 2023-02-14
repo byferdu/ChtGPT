@@ -23,14 +23,14 @@ public class ResponseModel2 {
     private int created;
     @SerializedName("model")
     private String model;
-    private ErrorParent Error;
+    private ErrorParent errorParent;
 
-    public ErrorParent getError() {
-        return Error;
+    public ErrorParent getErrorParent() {
+        return errorParent;
     }
 
-    public void setError(ErrorParent error) {
-        Error = error;
+    public void setErrorParent(ErrorParent errorParent) {
+        this.errorParent = errorParent;
     }
 
     public String getErrorMessage() {
@@ -206,13 +206,13 @@ public class ResponseModel2 {
 
     public static class ErrorBean {
         @SerializedName("message")
-        private String message;
+        protected String message;
         @SerializedName("type")
-        private String type;
+        protected String type;
         @SerializedName("param")
-        private Object param;
+        protected Object param;
         @SerializedName("code")
-        private Object code;
+        protected Object code;
 
         public String getMessage() {
             return message;

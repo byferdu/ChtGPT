@@ -35,8 +35,9 @@ public class PromptsAdapter extends RecyclerView.Adapter<PromptsAdapter.PromptVi
     public void setClickListener(MyItemClickListener<PromptModel> clickListener) {
         this.clickListener = clickListener;
     }
-    public void updateData(List<PromptModel> dataList,boolean isQuery) {
-      //  this.prompts.clear();
+
+    public void updateData(List<PromptModel> dataList, boolean isQuery) {
+        //  this.prompts.clear();
         if (isQuery) {
             this.prompts = dataList;
             notifyDataSetChanged();
@@ -47,19 +48,20 @@ public class PromptsAdapter extends RecyclerView.Adapter<PromptsAdapter.PromptVi
         notifyItemRangeChanged(0, dataList.size());
         //notifyDataSetChanged();
     }
+
     @NonNull
     @Override
     public PromptViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         PromptItemBinding binding = PromptItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-        PromptViewHolder promptViewHolder = new PromptViewHolder(binding);
-        promptViewHolder.onBind(prompts);
-        return promptViewHolder;
+
+        return new PromptViewHolder(binding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull PromptViewHolder holder, int position) {
         holder.itemView.setTag(R.id.chat_position, position);
         holder.binding.textView1.setText(prompts.get(position).getAct());
+        holder.onBind(prompts,position);
     }
 
     @Override
@@ -75,10 +77,12 @@ public class PromptsAdapter extends RecyclerView.Adapter<PromptsAdapter.PromptVi
             this.binding = binding;
         }
 
-        public void onBind(List<PromptModel> model) {
+        public void onBind(List<PromptModel> model,int position) {
             itemView.setOnClickListener(v -> {
-                if (model.size()>0)
-                clickListener.onItemClicked(model.get(getAdapterPosition()), false, getAdapterPosition());});
+                int position2 = (int) itemView.getTag(R.id.chat_position);
+                if (model.size() > 0)
+                    clickListener.onItemClicked(model.get(position), false, position);
+            });
 
         }
     }

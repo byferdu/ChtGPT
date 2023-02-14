@@ -46,10 +46,11 @@ public class ChatRepository {
                 }else {
                     Gson gson = new Gson();
                     try {
-                        Log.d("ITAG", "onResponse: "+String.valueOf(response.errorBody().string()));
-                        ResponseModel2.ErrorParent errorBean = gson.fromJson(String.valueOf(response.errorBody().string().toString()), ResponseModel2.ErrorParent.class);
+                        String errorJson = response.errorBody().string();
+                        Log.d("ITAG", "onResponse: "+ errorJson);
+                        ResponseModel2.ErrorParent errorBean = gson.fromJson(errorJson, ResponseModel2.ErrorParent.class);
                         ResponseModel2 responseModel2 = new ResponseModel2(null);
-                        responseModel2.setError(errorBean);
+                        responseModel2.setErrorParent(errorBean);
                         liveData.setValue(responseModel2);
                     } catch (IOException e) {
                         e.printStackTrace();

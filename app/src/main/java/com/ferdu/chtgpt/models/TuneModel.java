@@ -11,6 +11,17 @@ public class TuneModel {
     private int presence_penalty = 0;
     private String injStart ="";
     private String injRestart ="";
+
+    private boolean isOpen=false;
+
+    public boolean isOpen() {
+        return isOpen;
+    }
+
+    public void setOpen(boolean open) {
+        isOpen = open;
+    }
+
     public boolean isTrans() {
         return isTrans;
     }

@@ -221,7 +221,7 @@ public class AITextAdapter extends RecyclerView.Adapter<AITextAdapter.MyViewHold
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         final Markwon markwon = MyUtil.getMarkDown(context);
         holder.itemView.setTag(R.id.chat_position, position);
-        holder.onBind(list);
+        holder.onBind(list,position);
         if (list.get(position).getMeText().equals("Something wrong! Please try again later!")) {
             holder.textView2.setTextColor(0x00ff00);
         }
@@ -240,9 +240,9 @@ public class AITextAdapter extends RecyclerView.Adapter<AITextAdapter.MyViewHold
         }
         markwon.setMarkdown(holder.textView2, list.get(position).getAIText());
         holder.textView.setText(list.get(position).getMeText());
-        holder.textView3.setText("提问词元: " + list.get(position).getPrompt_tokens());
-        holder.textView4.setText("完成词元: " + list.get(position).getCompletion_tokens());
-        holder.textView5.setText("总共词元: " + list.get(position).getTotal_tokens());
+        holder.textView3.setText("提问: " + list.get(position).getPrompt_tokens());
+        holder.textView4.setText("完成: " + list.get(position).getCompletion_tokens());
+        holder.textView5.setText("总共: " + list.get(position).getTotal_tokens());
         holder.textView30.setText(list.get(position).getModel());
     }
 
@@ -289,8 +289,8 @@ public class AITextAdapter extends RecyclerView.Adapter<AITextAdapter.MyViewHold
             aiCheckBox = itemView.findViewById(R.id.aiCheckBox);
         }
 
-        public void onBind(List<ChatModel> chatModel) {
-            int position = (int) itemView.getTag(R.id.chat_position);
+        public void onBind(List<ChatModel> chatModel,int position) {
+            int position2 = (int) itemView.getTag(R.id.chat_position);
             aiCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 clickListener.onItemClicked(chatModel.get(position), isChecked, position);
             });

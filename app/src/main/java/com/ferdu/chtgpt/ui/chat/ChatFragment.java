@@ -37,12 +37,11 @@ import com.ferdu.chtgpt.R;
 import com.ferdu.chtgpt.databinding.FragmentChatBinding;
 import com.ferdu.chtgpt.models.ReqModel;
 import com.ferdu.chtgpt.models.ResponseModel2;
-import com.ferdu.chtgpt.models.TuneModel;
 import com.ferdu.chtgpt.models.data.ChatModel;
 import com.ferdu.chtgpt.models.data.ChatThread;
-import com.ferdu.chtgpt.network.HttpClient;
 import com.ferdu.chtgpt.ui.home.BackPressedListener;
 import com.ferdu.chtgpt.ui.home.HistoryFragment;
+import com.ferdu.chtgpt.util.MyUtil;
 import com.ferdu.chtgpt.viewmodel.MyViewModel;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -78,7 +77,7 @@ public class ChatFragment extends Fragment {
     private List<ChatModel> list;
     private String texts = "Something wrong! Please try again later!";
     int exampleId = -1;
-    private static final TuneModel tuneModels = new TuneModel();
+
     private int threadIdField = -1;
     private ProgressBar progressBar;
     private FragmentChatBinding binding;
@@ -139,7 +138,7 @@ public class ChatFragment extends Fragment {
         SharedPreferences sharedPreferences2 = PreferenceManager.getDefaultSharedPreferences(requireContext());
         //String name = sharedPreferences2.getString("mode", "");
         myViewModel = new ViewModelProvider(this).get(MyViewModel.class);
-        HttpClient.setContext(requireContext());
+       // HttpClient.setContext(requireContext());
         Handler handler = new Handler(Looper.getMainLooper());
         sharedPreferences = requireActivity().getSharedPreferences("key_1", MODE_PRIVATE);
         RecyclerView recyclerView = binding.recyclerView;
@@ -147,7 +146,6 @@ public class ChatFragment extends Fragment {
         button = binding.button;
         Log.d("QIGUAI", "Fragment onCreateView: ");
         myAdapter = new AITextAdapter(binding.getRoot().getContext(), list);
-
         binding.startConversation.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_stop_24));
         binding.probText.setOrientation(LinearLayout.HORIZONTAL);
         myAdapter.setRecyclerView(recyclerView);
@@ -189,8 +187,12 @@ public class ChatFragment extends Fragment {
         binding.settingImage.setOnClickListener(view -> {
             if (!dialog.isShowing()) {
                 dialog.show();
+                MyUtil.tuneModel.setOpen(true);
             }
         });
+        if (!dialog.isShowing()) {
+            MyUtil.tuneModel.setOpen(false);
+        }
         binding.addConnectTextView.setOnClickListener(v -> {
             List<Integer> removesList = new ArrayList<>();
             HistoryFragment.recyclerViewOnClickData.forEach((p, b) -> {
@@ -335,7 +337,7 @@ public class ChatFragment extends Fragment {
             if (binding.startConversation.getTag().toString().equals("stop")) {
                 reqModel.setPrompt(savePrompts.toString() + "User:" + s + md + "\nChatGPT:");
             }
-            String model = sharedPreferences2.getString("model", "text-chat-davinci-002-20230126");
+            String model = sharedPreferences2.getString("model", "text-davinci-003");
             float temperature = sharedPreferences2.getFloat("temperature1", 0.9f);
             float top_p = sharedPreferences2.getFloat("top_p1", 0.5f);
             float frequency_penalty = sharedPreferences2.getFloat("frequency_penalty1", 0.1f);
@@ -370,8 +372,8 @@ public class ChatFragment extends Fragment {
                     savePrompts(binding.startConversation.getTag().toString(), s, text);
                     insertChat(s, myAdapter, recyclerView, resModel, threadIdField, reqModel.getModel());
                 }
-                if (!tuneModels.getInjStart().isEmpty()) {
-                    editText.setText(tuneModels.getInjStart());
+                if (!MyUtil.tuneModel.getInjStart().isEmpty()) {
+                    editText.setText(MyUtil.tuneModel.getInjStart());
                 }
                 binding.textView.setVisibility(View.GONE);
                 Log.d(TAG2, "someActions: someActions setup");
@@ -508,12 +510,14 @@ public class ChatFragment extends Fragment {
 
     private void onOpenTune(String key, ReqModel reqModel, SomeActions someActions) {
         Log.d(TAG2, "onCreateView: openTune start");
-        reqModel.setModel(tuneModels.getModel());
-        reqModel.setTemperature(tuneModels.getTemperature());
-        reqModel.setMax_tokens(tuneModels.getMax_tokens());
-        reqModel.setTop_p(tuneModels.getTop_p());
-        if (tuneModels.getStop() != null && !tuneModels.getStop().isEmpty()) {
-            String stop1 = tuneModels.getStop();
+        if (MyUtil.tuneModel.isOpen()) {
+            reqModel.setModel(MyUtil.tuneModel.getModel());
+            reqModel.setTemperature(MyUtil.tuneModel.getTemperature());
+            reqModel.setMax_tokens(MyUtil.tuneModel.getMax_tokens());
+            reqModel.setTop_p(MyUtil.tuneModel.getTop_p());
+        }
+        if (MyUtil.tuneModel.getStop() != null && !MyUtil.tuneModel.getStop().isEmpty()) {
+            String stop1 = MyUtil.tuneModel.getStop();
             if (stop1.contains(",")) {
                 reqModel.setStop(stop1.split(","));
             } else {
@@ -521,7 +525,7 @@ public class ChatFragment extends Fragment {
             }
         }
         Log.d(TAG, "onCreateView: Before Trans Prompt:" + reqModel.getPrompt());
-        if (tuneModels.isTrans()) {
+        if (MyUtil.tuneModel.isTrans()) {
             AtomicReference<String> prompt = new AtomicReference<>(reqModel.getPrompt());
             myViewModel.getTrans(prompt.get(), 1).observe(getViewLifecycleOwner(), transModel -> {
                 Log.d(TAG2, "onCreateView: getTrans start");
@@ -546,15 +550,15 @@ public class ChatFragment extends Fragment {
             Log.d(TAG2, "getResponseText: myViewModel.getTex" + resModel);
             if (resModel.getErrorMessage() == null) {
                 Log.d(TAG2, "getResponseText: resModel != null");
-                if (resModel.getError() != null) {
-                    Toast.makeText(getContext(), resModel.getError().getError().getType(), Toast.LENGTH_SHORT).show();
+                if (resModel.getErrorParent() != null) {
+                    Toast.makeText(getContext(), resModel.getErrorParent().getError().getType(), Toast.LENGTH_SHORT).show();
                     showOrCancelProgress(progressBar, button, false);
                     return;
                 }
                 if (resModel.getChoices() != null) {
                     Log.d(TAG2, "getResponseText: resModel.choices != null");
-                    if (tuneModels.getInjRestart() != null) {
-                        texts = tuneModels.getInjRestart() + resModel.getChoices().get(0).getText();
+                    if (MyUtil.tuneModel.getInjRestart() != null) {
+                        texts = MyUtil.tuneModel.getInjRestart() + resModel.getChoices().get(0).getText();
                     } else {
                         texts = resModel.getChoices().get(0).getText();
                     }
@@ -564,7 +568,7 @@ public class ChatFragment extends Fragment {
                         texts = texts.trim();
                     }
                     resModel.getChoices().get(0).setText(texts);
-                    if (tuneModels.isTrans()) {
+                    if (MyUtil.tuneModel.isTrans()) {
                         myViewModel.getTrans(texts, 2).observe(getViewLifecycleOwner(), transModel -> {
                             if (transModel != null) {
                                 Log.d(TAG2, "getResponseText: transModel != null");
@@ -576,7 +580,7 @@ public class ChatFragment extends Fragment {
                             }
                         });
                     } else {
-                        Log.d(TAG2, "getResponseText: !tuneModels.isTrans()");
+                        Log.d(TAG2, "getResponseText: !MyUtil.tuneModel.isTrans()");
                         someActions.Action(resModel);
                     }
 

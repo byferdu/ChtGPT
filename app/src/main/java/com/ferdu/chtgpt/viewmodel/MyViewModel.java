@@ -97,6 +97,9 @@ public class MyViewModel extends AndroidViewModel {
     public LiveData<List<Model>> getModels() {
         return database.modelDao().getAll();
     }
+    public LiveData<Model> getModels(String model) {
+        return database.modelDao().getModel(model);
+    }
     public LiveData<PromptModel> getAtPrompts(String s) {
         return database.promptDAO().getAtQuery(s);
     }

@@ -20,9 +20,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Transformations;
 
 import com.ferdu.chtgpt.R;
 import com.ferdu.chtgpt.models.ReqModel;
+import com.ferdu.chtgpt.models.ResponseModel2;
+import com.ferdu.chtgpt.models.TuneModel;
 import com.ferdu.chtgpt.viewmodel.MyViewModel;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -185,26 +189,29 @@ public class MyUtil {
                     } else if (editText.getText().toString().contains("sk-")) {
                         progressBar.setVisibility(View.VISIBLE);
                         Log.d("TAG1213", "onCreate: " + sharedPreferences.getString("token", ""));
-                        if (requestTest(myViewModel, editText.getText().toString(), new ReqModel(), context)) {
-                            SharedPreferences.Editor edit = getShared(context).edit();
-                            edit.putString("key", "Bearer " + editText.getText().toString());
-                            edit.apply();
-                            Toast.makeText(context, "操作成功！🤗", Toast.LENGTH_SHORT).show();
-                            progressBar.setVisibility(View.GONE);
-                            try {
-                                Field field = Objects.requireNonNull(dialogInterface.getClass().getSuperclass()).getDeclaredField("mShowing");
-                                field.setAccessible(true);
-                                field.set(dialogInterface, true);
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                        LiveData<Boolean> isSuccessLiveData = requestTest(myViewModel, editText.getText().toString(), new ReqModel(), context);
+                        isSuccessLiveData.observe(context, isSuccess -> {
+                            // 在这里根据isSuccess的值做你想做的事情
+                            if (isSuccess) {
+                                SharedPreferences.Editor edit = getShared(context).edit();
+                                edit.putString("key", "Bearer " + editText.getText().toString());
+                                edit.apply();
+                                Toast.makeText(context, "操作成功！🤗", Toast.LENGTH_SHORT).show();
+                                progressBar.setVisibility(View.GONE);
+                                try {
+                                    Field field = Objects.requireNonNull(dialogInterface.getClass().getSuperclass()).getDeclaredField("mShowing");
+                                    field.setAccessible(true);
+                                    field.set(dialogInterface, true);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                dialogInterface.dismiss();
+                            } else {
+                                progressBar.setVisibility(View.GONE);
+                                editText.setError("错误密钥，检查你的密钥");
+                                Toast.makeText(context, "错误密钥，检查你的密钥🤨", Toast.LENGTH_SHORT).show();
                             }
-                            dialogInterface.dismiss();
-                        }else {
-                            progressBar.setVisibility(View.GONE);
-                            editText.setError("错误密钥，检查你的密钥");
-                            Toast.makeText(context, "错误密钥，检查你的密钥🤨", Toast.LENGTH_SHORT).show();
-                        }
-
+                        });
                     } else {
                         progressBar.setVisibility(View.GONE);
                         editText.setError("错误密钥，检查你的密钥");
@@ -261,33 +268,34 @@ public class MyUtil {
         lastClickTime = curClickTime;
     }
 
-    public static boolean requestTest(MyViewModel myViewModel,String key,ReqModel reqModel , FragmentActivity context ) {
-     //   ProgressBar progressBar = new MyProgressBar(context);
+    public static LiveData<Boolean> requestTest(MyViewModel myViewModel, String key, ReqModel reqModel, FragmentActivity context) {
+        // ProgressBar progressBar = new MyProgressBar(context);
         if (Objects.equals(key, "key")) {
             key = MyUtil.getShared(context).getString("key", "");
         }
-        AtomicReference<Boolean> isSuccess = new AtomicReference<>(false);
-        myViewModel.getTex("Bearer " + key
-                , reqModel).observe(context, responseData -> {
+        LiveData<ResponseModel2> responseDataLiveData = myViewModel.getTex("Bearer " + key, reqModel);
+        String finalKey = key;
+        return Transformations.map(responseDataLiveData, responseData -> {
             if (responseData.getErrorMessage() == null) {
-                if (responseData.getError() != null) {
-                    Toast.makeText(context, responseData.getError().getError().getMessage(), Toast.LENGTH_SHORT).show();
-                    isSuccess.set(false);
-                    return;
+                if (responseData.getErrorParent() != null) {
+                    Toast.makeText(context, responseData.getErrorParent().getError().getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.d("requestTest", "requestTest: responseData.getError() != null\n " + responseData.getErrorParent().getError().getMessage() + "\n");
+                    return false;
                 }
-                if (responseData.getChoices() == null) {
-                    isSuccess.set(false);
-                    return;
-                }
-                isSuccess.set(true);
+                Log.d("requestTest", "requestTest: responseData.getChoices() \n\n " + responseData.getChoices() + "\n");
+                Log.d("requestTest", "requestTest: reqModel.toString \n\n " + reqModel.toString() + "\n");
+                Log.d("requestTest", "requestTest: key \n\n " + finalKey + "\n");
+
+                return responseData.getChoices() != null;
             } else {
                 Toast.makeText(context, responseData.getErrorMessage(), Toast.LENGTH_SHORT).show();
-                isSuccess.set(false);
+                Log.d("requestTest", "requestTest: responseData.getErrorMessage() =! null \n\n " + responseData.getErrorMessage() + "\n");
+                return false;
             }
-
         });
-        return isSuccess.get();
+
     }
+
     public static boolean isNotFastClick2(int delayTime) {
         boolean flag = false;
         long curClickTime = System.currentTimeMillis();
@@ -298,4 +306,40 @@ public class MyUtil {
         lastClickTime2 = curClickTime;
         return flag;
     }
+
+    public static TuneModel tuneModel = new TuneModel();
+
+    public static void requestTest(MyViewModel myViewModel, String key, ReqModel reqModel
+            , FragmentActivity context, OnRequestCompletedListener listener) {
+        if (Objects.equals(key, "key")) {
+            key = MyUtil.getShared(context).getString("key", "");
+        }
+        String finalKey = key;
+        AtomicReference<String> errorMessage = new AtomicReference<>("");
+        myViewModel.getTex(key, reqModel).observe(context, responseData -> {
+            if (responseData.getErrorMessage() == null) {
+                if (responseData.getErrorParent() != null ) {
+                    errorMessage.set(responseData.getErrorParent().getError().getMessage());
+                    Toast.makeText(context, responseData.getErrorParent().getError().getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.d("requestTest", "requestTest: responseData.getError() != null\n " + responseData.getErrorParent().getError().getMessage() + "\n");
+                    listener.onRequestCompleted(false, responseData.getErrorParent().getError().getMessage());
+
+                }  else {
+                    Log.d("requestTest", "requestTest: responseData.getChoices() \n\n " + responseData.getChoices() + "\n");
+                    Log.d("requestTest", "requestTest: reqModel.toString \n\n " + reqModel.toString() + "\n");
+                    Log.d("requestTest", "requestTest: key \n\n " + finalKey + "\n");
+                    listener.onRequestCompleted(responseData.getChoices() != null, errorMessage.get());
+                }
+            } else {
+                Toast.makeText(context, responseData.getErrorMessage(), Toast.LENGTH_SHORT).show();
+                Log.d("requestTest", "requestTest: responseData.getErrorMessage() =! null \n\n " + responseData.getErrorMessage() + "\n");
+                listener.onRequestCompleted(false, responseData.getErrorMessage());
+            }
+        });
+    }
+
+    public interface OnRequestCompletedListener {
+        void onRequestCompleted(boolean isSuccess, String errorMassage);
+    }
+
 }

@@ -5,14 +5,14 @@ import androidx.annotation.NonNull;
 import java.util.Arrays;
 
 public class ReqModel {
-    public String model="text-davinci-003";
-    public String prompt="hello";
-    public float temperature = 0.5f;
-    public int max_tokens = 1000;
-    public float top_p = 1;
-    public float frequency_penalty = 0.5f;
-    public float presence_penalty = 0.5f;
-    public String[] stop;
+    private String model="text-davinci-003";
+    private String prompt="hello";
+    private float temperature = 0.5f;
+    private int max_tokens = 1000;
+    private float top_p = 1;
+    private float frequency_penalty = 0.5f;
+    private float presence_penalty = 0.5f;
+    private String[] stop;
 
     public ReqModel() {
     }

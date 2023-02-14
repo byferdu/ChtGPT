@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
+import com.ferdu.chtgpt.R;
 import com.ferdu.chtgpt.databinding.FragmentAddExampleBinding;
 import com.ferdu.chtgpt.models.ReqModel;
 import com.ferdu.chtgpt.models.data.Model;
@@ -40,7 +41,7 @@ public class AddExampleFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
+    private View viewById;
     public AddExampleFragment() {
         // Required empty public constructor
     }
@@ -80,6 +81,8 @@ public class AddExampleFragment extends Fragment {
 
         FragmentAddExampleBinding binding = FragmentAddExampleBinding.inflate(inflater, container, false);
         binding.toolbar.setNavigationOnClickListener(v -> Navigation.findNavController(v).navigateUp());
+        viewById = requireActivity().findViewById(R.id.nav_view);
+        viewById.setVisibility(View.GONE);
         if (getArguments() != null) {
             int insertType = getArguments().getInt("insertType", -1);
 
@@ -106,6 +109,7 @@ public class AddExampleFragment extends Fragment {
                     Navigation.findNavController(binding.getRoot()).navigateUp();
                     break;
             }
+
             binding.confrimBtn.setOnClickListener(v -> {
                 String text = Objects.requireNonNull(binding.textInputLayout.getEditText()).getText().toString();
                 String text1 = Objects.requireNonNull(binding.textInputLayout2.getEditText()).getText().toString();
@@ -116,6 +120,8 @@ public class AddExampleFragment extends Fragment {
                 }
                 switch (insertType) {
                     case 0:
+                        binding.progressBar5.setVisibility(View.VISIBLE);
+                        v.setEnabled(false);
                         if (binding.checkBox.isChecked()) {
                             // 构建对象
                             LCObject todo = new LCObject("Prompt");
@@ -124,9 +130,10 @@ public class AddExampleFragment extends Fragment {
                             todo.saveInBackground().subscribe(new Observer<LCObject>() {
                                 public void onSubscribe(Disposable disposable) {
                                 }
-
                                 public void onNext(LCObject todo) {
                                     // 成功保存之后，执行其他逻辑
+                                    binding.progressBar5.setVisibility(View.GONE);
+                                    v.setEnabled(true);
                                     System.out.println("保存成功。objectId：" + todo.getObjectId());
                                 }
 
@@ -145,10 +152,52 @@ public class AddExampleFragment extends Fragment {
                     case 1:
                         ReqModel reqModel = new ReqModel();
                         reqModel.setModel(text);
-                        if (MyUtil.requestTest(myViewModel, "key", reqModel, requireActivity())) {
-                            myViewModel.insertModel(new Model(text,text1));
-                            Navigation.findNavController(binding.getRoot()).navigateUp();
-                        }
+                        binding.progressBar5.setVisibility(View.VISIBLE);
+                        v.setEnabled(false);
+                        MyUtil.requestTest(myViewModel, "key", reqModel, requireActivity(), (isSuccess, errorMassage) -> {
+                            if (isSuccess) {
+                                // 请求成功
+                                myViewModel.getModels(text.trim()).observe(AddExampleFragment.this.getViewLifecycleOwner(), model -> {
+                                    if (model == null || model.getModel().isEmpty()) {
+                                        myViewModel.insertModel(new Model(text, text1));
+                                        Toast.makeText(AddExampleFragment.this.requireContext(), "操作成功！🤗", Toast.LENGTH_SHORT).show();
+                                        Navigation.findNavController(binding.getRoot()).navigateUp();
+                                    } else {
+                                        Toast.makeText(AddExampleFragment.this.requireContext(), "模型已存在！😟", Toast.LENGTH_SHORT).show();
+                                    }
+                                    binding.progressBar5.setVisibility(View.GONE);
+                                    v.setEnabled(true);
+                                });
+                            } else {
+                                // 请求失败
+                                binding.progressBar5.setVisibility(View.GONE);
+                                v.setEnabled(true);
+                                if (!errorMassage.isEmpty()) {
+                                    Toast.makeText(AddExampleFragment.this.requireContext(),errorMassage , Toast.LENGTH_SHORT).show();
+                                }else  Toast.makeText(AddExampleFragment.this.requireContext(),"操作失败！😟" , Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                       /* LiveData<Boolean> isSuccessLiveData = MyUtil.requestTest(myViewModel, "key", reqModel, requireActivity());
+
+                        isSuccessLiveData.observe(getViewLifecycleOwner(), isSuccess->{
+                            if (isSuccess) {
+                                myViewModel.getModels(text.trim()).observe(getViewLifecycleOwner(), model -> {
+                                    if (model == null || model.getModel().isEmpty()) {
+                                        myViewModel.insertModel(new Model(text, text1));
+                                        Toast.makeText(requireContext(), "操作成功！🤗", Toast.LENGTH_SHORT).show();
+                                        Navigation.findNavController(binding.getRoot()).navigateUp();
+                                    }else {
+                                        Toast.makeText(requireContext(), "模型已存在！🤗", Toast.LENGTH_SHORT).show();
+                                    }
+                                    binding.progressBar5.setVisibility(View.GONE);
+                                    v.setEnabled(true);
+                                });
+                            } else {
+                                binding.progressBar5.setVisibility(View.GONE);
+                                v.setEnabled(true);
+                                Toast.makeText(requireContext(), "操作失败😟,可能是无效模型", Toast.LENGTH_SHORT).show();
+                            }
+                        });*/
                         break;
                     case 2:
                         binding.textInputLayout.setHint("输入密钥");
@@ -164,5 +213,11 @@ public class AddExampleFragment extends Fragment {
         }
 
         return binding.getRoot();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        viewById.setVisibility(View.VISIBLE);
     }
 }

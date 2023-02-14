@@ -126,7 +126,7 @@ public class HomeFragment extends Fragment {
             myViewModel.getPrompts().observe(getViewLifecycleOwner(), promptModels -> {
                 if (promptModels != null) {
                     lists.addAll(promptModels);
-                    if (isFirst) {
+                    if (isFirst && lists.size()>0) {
                         Collections.shuffle(lists);
                         isFirst = false;
                     }
@@ -173,33 +173,40 @@ public class HomeFragment extends Fragment {
             });
             Date date = new Date();
             date.setTime(keyShared.getLong("versionDate", 1000));
-            LCQuery<LCObject> query2 = new LCQuery<>("Prompt").limit(200).whereGreaterThan("updatedAt", date);
+            LCQuery<LCObject> query2 = new LCQuery<>("Prompt").limit(200);
+//            if (true) {
+//                query2= query2.whereGreaterThan("updatedAt", date)
+//            }
             query2.findInBackground().subscribe(new Observer<List<LCObject>>() {
                 @Override
                 public void onSubscribe(Disposable d) {
                 }
+
                 @Override
                 public void onNext(List<LCObject> lcObjects) {
                     List<PromptModel> promptModels = new ArrayList<>();
-
                     for (int i = 0; i < lcObjects.size(); i++) {
                         promptModels.add(new PromptModel(lcObjects.get(i).getObjectId(), lcObjects.get(i).get("act").toString()
                                 , lcObjects.get(i).get("prompt").toString()));
                         Log.d("TAGupdate", "onNext: " + lcObjects.get(i).getUpdatedAt());
-                        if (lcObjects.get(i).getUpdatedAt().after(date)) {
+                        if (1 > lists.size()) {
+                            lists.add(promptModels.get(i));
+                            myViewModel.insertPrompts(promptModels.get(i));
+                        } else if (lcObjects.get(i).getUpdatedAt().after(date)) {
                             if (myViewModel.getAtPrompts(lcObjects.get(i).getObjectId()) != null) {
                                 myViewModel.updatePrompts(promptModels.get(i));
-                            } else{
+                            } else {
                                 lists.add(promptModels.get(i));
-                                myViewModel.insertPrompts(promptModels.get(i));}
+                                myViewModel.insertPrompts(promptModels.get(i));
+                            }
                         }
                     }
 
-                   // lists.addAll(promptModels);
+                    // lists.addAll(promptModels);
                     if (isFirst) {
                         Collections.shuffle(lists);
                         // generateRandomData();
-                        isFirst=false;
+                        isFirst = false;
                     }
                     promptsAdapter.updateData(lists, false);
                 }
@@ -326,7 +333,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void initPopup(View parentView) {
-        View contentView = LayoutInflater.from(requireContext()).inflate(R.layout.add_poupe_window, null,false);
+        View contentView = LayoutInflater.from(requireContext()).inflate(R.layout.add_poupe_window, null, false);
         PopupWindow popupWindow = new PopupWindow(contentView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
 
         popupWindow.setOutsideTouchable(true);

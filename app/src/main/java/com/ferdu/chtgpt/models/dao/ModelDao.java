@@ -11,4 +11,6 @@ import java.util.List;
 public interface ModelDao extends BaseDao<Model> {
     @Query("Select * from Model")
     LiveData<List<Model>> getAll();
+    @Query("Select * from Model where model=:model")
+    LiveData<Model> getModel(String model);
 }

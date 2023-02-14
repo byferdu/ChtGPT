@@ -40,6 +40,7 @@ import com.ferdu.chtgpt.databinding.FragmentPlayBinding;
 import com.ferdu.chtgpt.models.ReqModel;
 import com.ferdu.chtgpt.models.TuneModel;
 import com.ferdu.chtgpt.ui.SettingsActivity;
+import com.ferdu.chtgpt.util.MyUtil;
 import com.ferdu.chtgpt.viewmodel.MyViewModel;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -53,7 +54,7 @@ import java.util.List;
  * create an instance of this fragment.
  */
 public class Play_Fragment extends Fragment {
-    private final TuneModel tuneModels = new TuneModel();
+    
     private SharedPreferences sharedPreferences;
     private boolean isExecute = true;
     private String texts;
@@ -99,7 +100,6 @@ public class Play_Fragment extends Fragment {
         if (getArguments() != null) {
             exampleId = getArguments().getInt("exampleId", -1);
         }
-
         int finalExampleId = exampleId;
         View contentView = LayoutInflater.from(requireContext()).inflate(R.layout.layout_tune, binding.getRoot(), false);
 
@@ -108,8 +108,13 @@ public class Play_Fragment extends Fragment {
             if (!dialog.isShowing()) {
                 dialog.show();
                 isOpenTune = true;
+                MyUtil.tuneModel.setOpen(true);
             }
         });
+        if (!dialog.isShowing()) {
+            MyUtil.tuneModel.setOpen(false);
+            isOpenTune = false;
+        }
         myViewModel.getExample(finalExampleId).observe(getViewLifecycleOwner(), example2 -> {
             if (example2 != null&&binding.inpuLayout.getEditText()!=null) {
                 binding.inpuLayout.getEditText().setText(example2.getPrompt());
@@ -173,12 +178,12 @@ public class Play_Fragment extends Fragment {
                         }
                     }
                     if (isOpenTune) {
-                        reqModel.setModel(tuneModels.getModel());
-                        reqModel.setTemperature(tuneModels.getTemperature());
-                        reqModel.setMax_tokens(tuneModels.getMax_tokens());
-                        reqModel.setTop_p(tuneModels.getTop_p());
-                        if (tuneModels.getStop() != null && !tuneModels.getStop().isEmpty()) {
-                            String stop1 = tuneModels.getStop();
+                        reqModel.setModel(MyUtil.tuneModel.getModel());
+                        reqModel.setTemperature(MyUtil.tuneModel.getTemperature());
+                        reqModel.setMax_tokens(MyUtil.tuneModel.getMax_tokens());
+                        reqModel.setTop_p(MyUtil.tuneModel.getTop_p());
+                        if (MyUtil.tuneModel.getStop() != null && !MyUtil.tuneModel.getStop().isEmpty()) {
+                            String stop1 = MyUtil.tuneModel.getStop();
                             if (stop1.contains(",")) {
                                 reqModel.setStop(stop1.split(","));
                             } else {
@@ -191,8 +196,8 @@ public class Play_Fragment extends Fragment {
                     System.out.println(model1);
                     myViewModel.getTex(key, reqModel).observe(getViewLifecycleOwner(), resModel -> {
                         if (resModel.getErrorMessage() == null) {
-                            if (resModel.getError() != null) {
-                                Toast.makeText(getContext(), resModel.getError().getError().getType(), Toast.LENGTH_SHORT).show();
+                            if (resModel.getErrorParent() != null) {
+                                Toast.makeText(getContext(), resModel.getErrorParent().getError().getType(), Toast.LENGTH_SHORT).show();
                                 binding.buttonSubmit.setEnabled(true);
                                 return;
                             }
@@ -305,6 +310,9 @@ public class Play_Fragment extends Fragment {
 
     public Dialog tunePaneInit(MyViewModel myViewModel, LifecycleOwner lifecycleOwner, View contentView
             , SharedPreferences sharedPreferences2, int exampleId) {
+        if (MyUtil.tuneModel == null) {
+            MyUtil.tuneModel = new TuneModel();
+        }
         Context context = contentView.getContext();
         Dialog bottomDialog = new Dialog(context, R.style.TopSheet);
         bottomDialog.setContentView(contentView);
@@ -412,14 +420,14 @@ public class Play_Fragment extends Fragment {
             isTranslateSwitch.setChecked(isTrans);
         });
         confirmsBtn.setOnClickListener(v1 -> {
-            tuneModels.setModel(spinner.getSelectedItem().toString());
-            tuneModels.setTemperature(temperatureSeek.getProgress() * 0.01f);
-            tuneModels.setTop_p(topPSeek.getProgress() * 0.01f);
-            tuneModels.setMax_tokens(maxTokenSeek.getProgress());
-            tuneModels.setStop(String.valueOf(stopSquEdittext.getText()));
-            tuneModels.setInjStart(String.valueOf(injectFront.getText()));
-            tuneModels.setInjRestart(String.valueOf(injectBack.getText()));
-            tuneModels.setTrans(isTranslateSwitch.isChecked());
+            MyUtil.tuneModel.setModel(spinner.getSelectedItem().toString());
+            MyUtil.tuneModel.setTemperature(temperatureSeek.getProgress() * 0.01f);
+            MyUtil.tuneModel.setTop_p(topPSeek.getProgress() * 0.01f);
+            MyUtil.tuneModel.setMax_tokens(maxTokenSeek.getProgress());
+            MyUtil.tuneModel.setStop(String.valueOf(stopSquEdittext.getText()));
+            MyUtil.tuneModel.setInjStart(String.valueOf(injectFront.getText()));
+            MyUtil.tuneModel.setInjRestart(String.valueOf(injectBack.getText()));
+            MyUtil.tuneModel.setTrans(isTranslateSwitch.isChecked());
             bottomDialog.dismiss();
         });
         isTranslateSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {

@@ -30,7 +30,6 @@ public class AboutActivity extends AppCompatActivity {
             "\n" +
             "3. 支持连续对话。ChatGPT具有记忆能力，提高了模型的交互体验。\n" +
             "\n" +
-            "> **注意： 因官方提供的接口限制，此App暂不支持连续对话**\n" +
             "\n" +
             "<br>\n" +
             "\n" +
@@ -39,34 +38,7 @@ public class AboutActivity extends AppCompatActivity {
             "\n" +
             "<br>\n" +
             "\n" +
-            "> 不管什么方法，需要先 **注册↓↓**\n" +
-            "\n" +
-            "<br>\n" +
-            "\n" +
-            "### 方法一\n" +
-            "\n" +
-            "<br>\n" +
-            "\n" +
-            "\n" +
-            "- 使用此App\n" +
-            "\n" +
-            "    - 优点：直接使用，不用注册，不用翻q，方便快捷。\n" +
-            "\n" +
-            "    - 缺点：不能连续对话，不能编辑内容，不能评价AI的回答。\n" +
-            "\n" +
-            "### 方法二\n" +
-            "\n" +
-            "<br>\n" +
-            "\n" +
-            "- 访问官方提供的地址 <https://chat.openai.com/chat>\n" +
-            "\n" +
-            "    - 优点：能够连续对话，能够编辑内容，能够评价AI的回答。\n" +
-            "\n" +
-            "    - 缺点：因ChatGPT对中国暂未开放原因，注册麻烦，需要翻q，繁琐的重登、验证你是否机器人。\n" +
-            "\n" +
-            "<br>\n" +
-            "\n" +
-            "## 怎么注册\n" +
+            "> 需要先注册OpenAI账号\n" +
             "\n" +
             "<br>\n" +
             "\n" +
@@ -80,13 +52,41 @@ public class AboutActivity extends AppCompatActivity {
             "\n" +
             "<br>\n" +
             "\n" +
+            "### 使用方法一\n" +
+            "\n" +
+            "<br>\n" +
+            "\n" +
+            "\n" +
+            "- 使用此App\n" +
+            "\n" +
+            "    - 优点：直接使用，不用注册，不用翻q，方便快捷。\n" +
+            "\n" +
+            "    - 缺点：收费，响应不如官网的ChatGPT\n" +
+            "\n" +
+            "### 使用方法二\n" +
+            "\n" +
+            "<br>\n" +
+            "\n" +
+            "- 访问官方提供的地址 <https://chat.openai.com/chat>\n" +
+            "\n" +
+            "    - 优点：免费，更智能\n" +
+            "\n" +
+            "    - 缺点：因ChatGPT对中国暂未开放原因，注册麻烦，需要翻q，繁琐的重登、验证你是否机器人。\n" +
+            "\n" +
+            "<br>\n" +
+            "\n" +
+
+            "\n" +
+            "<br>\n" +
+            "\n" +
             "\n" +
             "# 关于此应用\n" +
             "\n" +
-            "此应用是通过官方提供的API实现了ChatGPT的问答功能。你可以问任何问题。\n" +
+            "此应用是通过官方提供的GPT3 API 打造的。你可以问任何问题。\n" +
+            "<br>丰富多彩的功能的等你发现！\n" +
             "<br>APP的界面跟官方没有太大差异，还支持[Markdown](https://baike.baidu.com/item/markdown/3245829)格式的输出，包括代码语法突出显示，带来更好的阅读体验。\n" +
             "\n" +
-            ">  作者qq：[2623476654](mqqwpa://im/chat?chat_type=wpa&uin=2623476654) ;  vx: `Al3mdar` \n";
+            ">  作者QQ：[2623476654](mqqwpa://im/chat?chat_type=wpa&uin=2623476654) ;  vx: `Al3mdar` \n";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
