@@ -46,6 +46,7 @@ import io.noties.markwon.MarkwonPlugin;
 import io.noties.markwon.MarkwonVisitor;
 import io.noties.markwon.core.MarkwonTheme;
 import io.noties.markwon.ext.tables.TablePlugin;
+import io.noties.markwon.image.glide.GlideImagesPlugin;
 import io.noties.markwon.linkify.LinkifyPlugin;
 import io.noties.markwon.syntax.Prism4jThemeDarkula;
 import io.noties.markwon.syntax.SyntaxHighlightPlugin;
@@ -84,6 +85,7 @@ public class MyUtil {
                 builder.codeBlockMargin(20);
             }
         });
+        list.add(GlideImagesPlugin.create(context));
         list.add(new AbstractMarkwonPlugin() {
             @Override
             public void configureConfiguration(@NonNull MarkwonConfiguration.Builder builder) {
@@ -91,9 +93,7 @@ public class MyUtil {
             }
         });
         list.add(TablePlugin.create(context));
-        // use TableAwareLinkMovementMethod to handle clicks inside tables,
-        // wraps LinkMovementMethod internally
-        //  .usePlugin(MovementMethodPlugin.create(TableAwareMovementMethod.create())))
+
         return Markwon.builder(context)
                 .usePlugins(list)
                 .build();

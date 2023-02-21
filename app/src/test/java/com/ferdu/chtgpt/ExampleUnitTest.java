@@ -1,8 +1,8 @@
 package com.ferdu.chtgpt;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -15,5 +15,18 @@ public class ExampleUnitTest {
         assertEquals(4, 2 + 2);
     }
 
-
+    @Test
+    private void myTest() {
+        int i=0;
+        if (i == 0) {
+            i++;
+            if (i == 1) {
+                System.out.println("里面");
+                return;
+            }
+        }else {
+            System.out.println("else");
+        }
+        System.out.println("外面");
+    }
 }

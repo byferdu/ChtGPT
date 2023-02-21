@@ -37,7 +37,11 @@ public class MyViewModel extends AndroidViewModel {
         database = ChatDatabase.getDatabase(application);
         repositories = new ChatRepository(database);
     }
-
+    public void cancelData() {
+        if (repositories.myCall != null && !repositories.myCall.isCanceled()) {
+            repositories.myCall.cancel();
+        }
+    }
     public LiveData<ResponseModel2> getTex(String token, ReqModel reqModel) {
         return repositories.getTex(token, reqModel);
     }

@@ -226,20 +226,21 @@ public class HistoryFragment extends Fragment implements BackPressedListener {
                         myViewModel.deleteChatThread(chatThread1);
                         int i1 = myViewModel.deleteByTreadId(chatThread1.getId());
                     }
-                    Toast.makeText(requireContext(), "删除成功！🤗", Toast.LENGTH_SHORT).show();
+                    if (getContext() != null) {
+                        Toast.makeText(getContext(), "删除成功！🤗", Toast.LENGTH_SHORT).show();
+                    }
                 }
                 removesList.clear();
                 ThreadAdapter.selectAll = 2;
             }, 5000);
         });
-        View root = binding.getRoot();
-//           String key = keyShared.getString("key", "");
+        //           String key = keyShared.getString("key", "");
 //            if (key != null && !key.isEmpty()) {
 //                startActivity(new Intent(requireActivity(), ChatActivity.class));
 //            } else {
 //                MyUtil.ShowSetKeyDialog(requireActivity(), binding.getRoot(), myViewModel, false);
 //            }
-        return root;
+        return binding.getRoot();
     }
 
     @Override

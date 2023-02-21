@@ -30,22 +30,78 @@
         tools:text="@tools:sample/lorem[4]" />
 
 
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="@dimen/_28sdp"
+        android:layout_height="@dimen/_28sdp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toEndOf="@+id/aiCheckBox"
+        app:layout_constraintTop_toBottomOf="@+id/textView2"
+        app:srcCompat="@drawable/ic_open_bot_round" />
+
+    <LinearLayout
+        android:id="@+id/typing_indicator_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/ai_text_back"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="@dimen/_10sdp"
+        android:visibility="gone"
+        app:layout_constraintStart_toEndOf="@+id/imageView"
+        app:layout_constraintTop_toTopOf="@+id/imageView"
+        tools:visibility="visible">
+
+        <TextView
+            android:id="@+id/hintText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha="0.6"
+            android:text="正在请求  "
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textSize="@dimen/_12ssp"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <View
+            android:id="@+id/typing_dot_1"
+            android:layout_width="@dimen/_8sdp"
+            android:layout_height="@dimen/_8sdp"
+            android:background="@drawable/typing_dot" />
+
+        <View
+            android:id="@+id/typing_dot_2"
+            android:layout_width="@dimen/_8sdp"
+            android:layout_height="@dimen/_8sdp"
+            android:layout_marginStart="@dimen/_5sdp"
+            android:background="@drawable/typing_dot" />
+
+        <View
+            android:id="@+id/typing_dot_3"
+            android:layout_width="@dimen/_8sdp"
+            android:layout_height="@dimen/_8sdp"
+            android:layout_marginStart="@dimen/_5sdp"
+            android:background="@drawable/typing_dot" />
+
+    </LinearLayout>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/ai_text_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/aiCheckBox"
-        app:layout_constraintTop_toBottomOf="@+id/textView2">
+        app:layout_constraintStart_toEndOf="@+id/imageView"
+        app:layout_constraintTop_toTopOf="@+id/imageView"
+        tools:visibility="visible">
 
         <TextView
             android:id="@+id/textView3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/_5sdp"
             android:background="@drawable/ai_text_back"
-            android:linksClickable="true"
             android:minHeight="@dimen/_36sdp"
             android:padding="@dimen/_7sdp"
             android:textColor="@color/black_white"
@@ -53,60 +109,12 @@
             app:layout_constrainedWidth="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/imageView"
-            app:layout_constraintTop_toTopOf="@+id/imageView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_max="0dp"
             tools:ignore="TouchTargetSizeCheck"
             tools:text="@tools:sample/lorem[4]"
             tools:visibility="visible" />
-
-        <LinearLayout
-            android:id="@+id/typing_indicator_container"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_marginStart="8dp"
-            android:background="@drawable/ai_text_back"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:padding="@dimen/_10sdp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@+id/textView3"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/imageView"
-            app:layout_constraintTop_toTopOf="@+id/textView3"
-            tools:visibility="visible">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Typing..."
-                android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                android:textSize="@dimen/_12ssp"
-                android:visibility="gone"
-                tools:visibility="gone" />
-
-            <ImageView
-                android:id="@+id/typing_dot_1"
-                android:layout_width="@dimen/_8sdp"
-                android:layout_height="@dimen/_8sdp"
-                android:background="@drawable/typing_dot" />
-
-            <ImageView
-                android:id="@+id/typing_dot_2"
-                android:layout_width="@dimen/_8sdp"
-                android:layout_height="@dimen/_8sdp"
-                android:layout_marginStart="@dimen/_5sdp"
-                android:background="@drawable/typing_dot" />
-
-            <ImageView
-                android:id="@+id/typing_dot_3"
-                android:layout_width="@dimen/_8sdp"
-                android:layout_height="@dimen/_8sdp"
-                android:layout_marginStart="@dimen/_5sdp"
-                android:background="@drawable/typing_dot" />
-
-        </LinearLayout>
 
         <TextView
             android:id="@+id/textView7"
@@ -162,15 +170,6 @@
             app:layout_constraintStart_toEndOf="@+id/textView8"
             app:layout_constraintTop_toTopOf="@+id/textView7" />
 
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="@dimen/_28sdp"
-            android:layout_height="@dimen/_28sdp"
-            android:layout_marginTop="16dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_open_bot_round" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <CheckBox
@@ -179,6 +178,7 @@
         android:layout_height="wrap_content"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="gone" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

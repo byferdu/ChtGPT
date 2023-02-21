@@ -68,53 +68,48 @@ public class UpdateVersionShowDialog extends DialogFragment {
 //            }else
                 dismiss();
         });
-        tvUpdate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                v.setEnabled(false);
+        tvUpdate.setOnClickListener(v -> {
+            v.setEnabled(false);
 
-                //安装包的下载地址,选择getCacheDir路径，可以避免存储权限的处理
-                final File targetFile = new File(getActivity().getCacheDir(), "target.apk");
-                AppUpdater.getInstance().getINetManager().download(appVersionInfoBean.getUrl(), targetFile, new IDownloadCallback() {
-                    @Override
-                    public void onSuccess(File apkFile) {
-                        v.setEnabled(true);
+            //安装包的下载地址,选择getCacheDir路径，可以避免存储权限的处理
+            final File targetFile = new File(requireActivity().getCacheDir(), "target.apk");
+            AppUpdater.getInstance().getINetManager().download(appVersionInfoBean.getUrl(), targetFile, new IDownloadCallback() {
+                @Override
+                public void onSuccess(File apkFile) {
+                    v.setEnabled(true);
+                    dismiss();
+                    //下载成功
+                    Log.d(TAG, "success = " + apkFile.getAbsolutePath());
 
-                        dismiss();
 
-                        //下载成功
-                        Log.d(TAG, "success = " + apkFile.getAbsolutePath());
+                    String fileMd5 = AppUtils.getFileMd5(targetFile);
+                    Log.d(TAG, "md5 = " + fileMd5);
 
-                        //TODO check MD5
-                        String fileMd5 = AppUtils.getFileMd5(targetFile);
-                        Log.d(TAG, "md5 = " + fileMd5);
+                    if (fileMd5 != null && fileMd5.equals(appVersionInfoBean.getMd5())) {
+                        //校验成功，安装
+                        Toast.makeText(getActivity(), "开始安装😊", Toast.LENGTH_SHORT).show();
 
-                        if (fileMd5 != null && fileMd5.equals(appVersionInfoBean.getMd5())) {
-                            //校验成功，安装
-                            Toast.makeText(getActivity(), "开始安装😊", Toast.LENGTH_SHORT).show();
-
-                            AppUtils.installApk(getActivity(), apkFile);
-                        } else {
-                            Toast.makeText(getActivity(), "md5检测失败😟", Toast.LENGTH_SHORT).show();
-                        }
+                        AppUtils.installApk(getActivity(), apkFile);
+                    } else {
+                        Toast.makeText(getActivity(), "md5检测失败😟", Toast.LENGTH_SHORT).show();
                     }
+                }
 
-                    @Override
-                    public void progress(int progress) {
-                        Log.d(TAG, "progress = " + progress);
+                @Override
+                public void progress(int progress) {
+                    Log.d(TAG, "progress = " + progress);
 
-                        tvUpdate.setText(progress + "%");
-                    }
+                    tvUpdate.setText(progress + "%");
+                }
 
-                    @Override
-                    public void onFailure(Throwable throwable) {
-                        v.setEnabled(true);
+                @Override
+                public void onFailure(Throwable throwable) {
+                    v.setEnabled(true);
 
-                        throwable.printStackTrace();
-                        Toast.makeText(getActivity(), "文件下载失败🥹", Toast.LENGTH_SHORT).show();
-                    }
-                }, UpdateVersionShowDialog.this);
-            }
+                    throwable.printStackTrace();
+                    Toast.makeText(getActivity(), "文件下载失败🥹", Toast.LENGTH_SHORT).show();
+                }
+            }, UpdateVersionShowDialog.this);
         });
     }
 

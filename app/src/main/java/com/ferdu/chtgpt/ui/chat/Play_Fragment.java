@@ -59,6 +59,7 @@ public class Play_Fragment extends Fragment {
     private boolean isExecute = true;
     private String texts;
     private boolean isOpenTune = false;
+    private MyViewModel myViewModel;
 
     public Play_Fragment() {
         // Required empty public constructor
@@ -91,11 +92,10 @@ public class Play_Fragment extends Fragment {
 
         addLayoutListener(binding.getRoot(), binding.constraintLayout);
 
-
         SharedPreferences sharedPreferences2 = PreferenceManager.getDefaultSharedPreferences(requireContext());
 
         sharedPreferences = requireActivity().getSharedPreferences("key_1", MODE_PRIVATE);
-        MyViewModel myViewModel = new ViewModelProvider(requireActivity()).get(MyViewModel.class);
+        myViewModel = new ViewModelProvider(requireActivity()).get(MyViewModel.class);
         int exampleId = -1;
         if (getArguments() != null) {
             exampleId = getArguments().getInt("exampleId", -1);
@@ -154,7 +154,7 @@ public class Play_Fragment extends Fragment {
             //progressBar.setVisibility(View.VISIBLE);
             binding.buttonSubmit.setEnabled(false);
             String s = editText.getText().toString();
-
+            binding.progressBar2.setVisibility(View.VISIBLE);
             ReqModel reqModel = new ReqModel();
 
             reqModel.setPrompt(s);
@@ -199,6 +199,7 @@ public class Play_Fragment extends Fragment {
                             if (resModel.getErrorParent() != null) {
                                 Toast.makeText(getContext(), resModel.getErrorParent().getError().getType(), Toast.LENGTH_SHORT).show();
                                 binding.buttonSubmit.setEnabled(true);
+                                binding.progressBar2.setVisibility(View.GONE);
                                 return;
                             }
                             if (resModel.getChoices() != null) {
@@ -247,6 +248,7 @@ public class Play_Fragment extends Fragment {
                         } else {
                             Toast.makeText(requireContext(), resModel.getErrorMessage(), Toast.LENGTH_SHORT).show();
                         }
+                        binding.progressBar2.setVisibility(View.GONE);
                         binding.buttonSubmit.setEnabled(true);
                     });
                 }
@@ -441,6 +443,14 @@ public class Play_Fragment extends Fragment {
         });
         cancelButton.setOnClickListener(view1 -> bottomDialog.dismiss());
         return bottomDialog;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (myViewModel != null) {
+            myViewModel.cancelData();
+        }
     }
 
     /**

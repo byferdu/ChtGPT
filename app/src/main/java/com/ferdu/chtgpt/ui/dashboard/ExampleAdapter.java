@@ -55,6 +55,7 @@ public class ExampleAdapter extends ListAdapter<Example2, ExampleAdapter.Example
             p = 0;
         }
         holder.binding.examCard.setCardBackgroundColor(context.getResources().getColor(colors[p]));
+
         int drawableId = context.getResources().getIdentifier(getItem(position).getImage(), "drawable", context.getPackageName());
         Glide.with(bind.getRoot())
                 .load(drawableId)

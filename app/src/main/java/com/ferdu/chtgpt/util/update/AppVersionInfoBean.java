@@ -38,7 +38,7 @@ public class AppVersionInfoBean extends LCObject implements Serializable {
         String md5 = Objects.requireNonNull(response.getServerData().get(UpdateApk.MD5)).toString();
         String versionCode = Objects.requireNonNull(response.getServerData().get(UpdateApk.VERSIONCODE)).toString();
 
-        //TODO 是否需要对获取到的值进行检验
+
             // 不应该在这里检测，检测属于使用这个bean，不适合在这里处理
 
             return new AppVersionInfoBean(title,content,url,md5,versionCode);

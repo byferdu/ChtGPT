@@ -1,5 +1,6 @@
 package com.ferdu.chtgpt.util.update;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -108,7 +109,6 @@ public class AppUtils {
         if (targetFile == null || !targetFile.isFile()) {
             return null;
         }
-
         MessageDigest digest;
         FileInputStream fis = null;
         byte[] buffer = new byte[1024];
@@ -133,8 +133,7 @@ public class AppUtils {
         }
         byte[] result = digest.digest();
         BigInteger bigInteger = new BigInteger(1, result);
-
-        return bigInteger.toString(16);
+        return String.format("%032x", bigInteger);
     }
 
     /**
@@ -143,14 +142,15 @@ public class AppUtils {
      * @param activity
      * @param apkFile
      */
+    @SuppressLint({"SetWorldReadable", "SetWorldWritable"})
     public static void installApk(FragmentActivity activity, File apkFile) {
         //文件有所有者概念，现在是属于当前进程的，需要把这个文件暴露给系统安装程序（其他进程）去安装
         //因此，可能会存在权限问题，需要做下面的设置
         //如果文件是sdcard上的，就不需要这个操作了
         try {
-            apkFile.setExecutable(true, false);
-            apkFile.setReadable(true, false);
-            apkFile.setWritable(true, false);
+            boolean b = apkFile.setExecutable(true, false);
+            boolean b1 = apkFile.setReadable(true, false);
+            boolean b2 = apkFile.setWritable(true, false);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -160,7 +160,7 @@ public class AppUtils {
         intent.setAction(Intent.ACTION_VIEW);
         Uri uri;
 
-        //TODO N FileProvider
+        // N FileProvider
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             uri = FileProvider.getUriForFile(activity, activity.getPackageName() + ".fileprovider", apkFile);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -172,7 +172,7 @@ public class AppUtils {
         intent.setDataAndType(uri, "application/vnd.android.package-archive");
         activity.startActivity(intent);
 
-        //TODO 0 INSTALL PERMISSION
+        // 0 INSTALL PERMISSION
         //在AndroidManifest中加入权限即可
     }
 }

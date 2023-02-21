@@ -54,7 +54,7 @@ import io.reactivex.disposables.Disposable;
  */
 public class HomeFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
+
 
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     public static boolean isFirst = true;
@@ -63,7 +63,6 @@ public class HomeFragment extends Fragment {
     private boolean scrollingUp = false;
     private boolean isSearching = false;
 
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
     public static final List<PromptModel> lists = new ArrayList<>();
@@ -82,7 +81,7 @@ public class HomeFragment extends Fragment {
      * @param param2 Parameter 2.
      * @return A new instance of fragment HomeFragment.
      */
-    // TODO: Rename and change types and number of parameters
+
     public static HomeFragment newInstance(String param1, String param2) {
         HomeFragment fragment = new HomeFragment();
         Bundle args = new Bundle();

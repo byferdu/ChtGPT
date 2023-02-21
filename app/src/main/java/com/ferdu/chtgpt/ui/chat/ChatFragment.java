@@ -41,6 +41,7 @@ import com.ferdu.chtgpt.models.data.ChatModel;
 import com.ferdu.chtgpt.models.data.ChatThread;
 import com.ferdu.chtgpt.ui.home.BackPressedListener;
 import com.ferdu.chtgpt.ui.home.HistoryFragment;
+import com.ferdu.chtgpt.util.HelpPopupWindow;
 import com.ferdu.chtgpt.util.MyUtil;
 import com.ferdu.chtgpt.viewmodel.MyViewModel;
 import com.google.android.material.snackbar.Snackbar;
@@ -55,7 +56,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link ChatFragment#newInstance} factory method to
+ * Use the {@link } factory method to
  * create an instance of this fragment.
  */
 public class ChatFragment extends Fragment {
@@ -64,18 +65,17 @@ public class ChatFragment extends Fragment {
     private AppCompatImageButton button;
     private boolean isExecute = true;
     private boolean isExecute2 = true;
+
     StringBuilder savePrompts = new StringBuilder();
     public static TreadChanged treadChanged;
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "exampleId";
-    private static final String ARG_PARAM2 = "param2";
+
     private MyViewModel myViewModel;
+    private int conCount = 0;
 
     //private final Handler handler = new Handler(Looper.getMainLooper());
     private SharedPreferences sharedPreferences;
     private List<ChatModel> list;
-    private String texts = "Something wrong! Please try again later!";
+    private String texts = "";
     int exampleId = -1;
 
     private int threadIdField = -1;
@@ -98,21 +98,6 @@ public class ChatFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @return A new instance of fragment ChatFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ChatFragment newInstance(int param1) {
-        ChatFragment fragment = new ChatFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_PARAM1, param1);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -137,11 +122,13 @@ public class ChatFragment extends Fragment {
         binding = FragmentChatBinding.inflate(inflater, container, false);
         SharedPreferences sharedPreferences2 = PreferenceManager.getDefaultSharedPreferences(requireContext());
         //String name = sharedPreferences2.getString("mode", "");
+
         myViewModel = new ViewModelProvider(this).get(MyViewModel.class);
-       // HttpClient.setContext(requireContext());
+        // HttpClient.setContext(requireContext());
         Handler handler = new Handler(Looper.getMainLooper());
         sharedPreferences = requireActivity().getSharedPreferences("key_1", MODE_PRIVATE);
         RecyclerView recyclerView = binding.recyclerView;
+
         progressBar = binding.progressBar;
         button = binding.button;
         Log.d("QIGUAI", "Fragment onCreateView: ");
@@ -149,17 +136,40 @@ public class ChatFragment extends Fragment {
         binding.startConversation.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_stop_24));
         binding.probText.setOrientation(LinearLayout.HORIZONTAL);
         myAdapter.setRecyclerView(recyclerView);
+        HelpPopupWindow helpPopupWindow = new HelpPopupWindow(requireContext(), binding.startConversation
+                , "🟥 是上下文开关按钮，默认开启。关闭时不会考虑上下文。如果正在请求时被点击，则取消请求。");
+        Log.d(TAG, "onCreateView: "+ requireContext().getResources().getResourceName(R.drawable.ic_baseline_stop_24)+ ".xml");
+        binding.descriptionView.setOnClickListener(v -> {
+         if (!helpPopupWindow.isShowing()) {
+                helpPopupWindow.showHelp();
+            }else helpPopupWindow.hideHelp();
+        });
         binding.startConversation.setOnClickListener(v -> {
+            if (!myAdapter.isTimerFinished) {
+                if (myViewModel != null) {
+                    myViewModel.cancelData();
+                }
+                myAdapter.onDestroy();
+                return;
+            }
             if (binding.startConversation.getTag().toString().equals("play")) {
                 binding.startConversation.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_stop_24));
                 binding.startConversation.setTag("stop");
+                if (myAdapter.getItemCount() == 0) {
+                    binding.stateText.setText("上下文已开");
+                    return;
+                }
+                binding.stateText.setText("已记0对话");
             } else {
+                binding.stateText.setText("上下文已关");
                 binding.startConversation.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_play_arrow_24));
                 binding.startConversation.setTag("play");
                 savePrompts.setLength(0);
+                conCount = 0;
             }
         });
-
+        MyUtil.tuneModel.setInjRestart("Human:");
+        MyUtil.tuneModel.setInjStart("AI:");
         treadChanged = thread -> {
             DrawerLayout viewById = requireActivity().findViewById(R.id.chat_active);
             myViewModel.getChatModels(thread.getId()).observe(getViewLifecycleOwner(), chatModels -> {
@@ -167,17 +177,25 @@ public class ChatFragment extends Fragment {
                     threadIdField = thread.getId();
                     int size = list.size();
                     list.clear();
+                    conCount = 0;
+                    binding.stateText.setText("已记" + conCount + "对话");
+                    if (binding.startConversation.getTag().equals("play")) {
+                        binding.stateText.setText("上下文已关");
+                    }
                     myAdapter.notifyItemRangeRemoved(0, size);
                     list.addAll(chatModels);
                     if (0 < list.size()) {
                         binding.textView.setVisibility(View.GONE);
                     }
                     myAdapter.notifyItemRangeChanged(0, list.size());
-
                 }
             });
         };
         binding.chatMaterialToolbar.setNavigationOnClickListener(view -> {
+            if (AITextAdapter.isMultiSelectMode) {
+                cancelSelected();
+                return;
+            }
             DrawerLayout viewById = requireActivity().findViewById(R.id.chat_active);
             viewById.open();
         });
@@ -194,20 +212,27 @@ public class ChatFragment extends Fragment {
             MyUtil.tuneModel.setOpen(false);
         }
         binding.addConnectTextView.setOnClickListener(v -> {
-            List<Integer> removesList = new ArrayList<>();
+            List<Integer> addList = new ArrayList<>();
             HistoryFragment.recyclerViewOnClickData.forEach((p, b) -> {
                 if (b) {
-                    removesList.add(p);
+                    addList.add(p);
                 }
             });
-            Collections.sort(removesList);
+            Collections.sort(addList);
             savePrompts.setLength(0);
-            for (Integer integer : removesList) {
+            conCount = 0;
+            savePrompts.append("The following is a conversation with an AI assistant.The assistant is helpful, creative, and well-reasoned. His answers are apt, and very friendly.");
+            for (int integer : addList) {
                 ChatModel chatModel = list.get(integer);
-                savePrompts.append("\nUser:").append(chatModel.getMeText()).append("\nChatGPT:")
+                savePrompts.append("\nUser:").append(chatModel.getMeText()).append("\nAI:")
                         .append(chatModel.getAIText()).append("\n");
             }
-            Toast.makeText(requireContext(), "已添加" + removesList.size() + "个对话", Toast.LENGTH_SHORT).show();
+            conCount = addList.size();
+            binding.stateText.setText("已记" + conCount + "对话");
+            if (binding.startConversation.getTag().equals("play")) {
+                binding.startConversation.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_stop_24));
+                binding.startConversation.setTag("stop");
+            }else Toast.makeText(requireContext(), "已添加" + conCount + "个对话", Toast.LENGTH_SHORT).show();
             cancelSelected();
         });
         binding.deleteButton.setOnClickListener(v -> {
@@ -277,6 +302,9 @@ public class ChatFragment extends Fragment {
                 if (list.size() == 0) {
                     list.addAll(chatModels);
                     myAdapter.notifyItemRangeChanged(0, list.size());
+                    if (myAdapter.getItemCount() == 0) {
+                        binding.stateText.setText("对话已开启");
+                    } else binding.stateText.setText("已记0对话");
                 }
             }
         });
@@ -286,6 +314,8 @@ public class ChatFragment extends Fragment {
             binding.deleteButton.setVisibility(View.VISIBLE);
             binding.settingImage.setVisibility(View.GONE);
             binding.startConversation.setVisibility(View.GONE);
+            binding.descriptionView.setVisibility(View.GONE);
+            binding.chatMaterialToolbar.setNavigationIcon(ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_keyboard_backspace_24));
             binding.probText.setVisibility(View.GONE);
             binding.button.setVisibility(View.GONE);
             binding.addConnectTextView.setVisibility(View.VISIBLE);
@@ -323,19 +353,29 @@ public class ChatFragment extends Fragment {
                 editText.setError("输入框不能为空！");
                 return;
             }
-           // button.setEnabled(false);
+            // button.setEnabled(false);
             showOrCancelProgress(progressBar, button, true);
             Log.d(TAG2, "onCreateView: progressBar.show");
             String s = editText.getText().toString();
             ReqModel reqModel = new ReqModel();
+            myAdapter.update(new ChatModel(threadIdField, s, null));
+            recyclerView.scrollToPosition(myAdapter.getItemCount() - 1);
+            binding.textView.setVisibility(View.GONE);
+            editText.setText("");
+
             String md = "";
             boolean md_out = sharedPreferences2.getBoolean("md_out", false);
             if (md_out) {
                 md = " in md format";
             }
-            reqModel.setPrompt("User:" + s + md + "\nChatGPT:");
-            if (binding.startConversation.getTag().toString().equals("stop")) {
-                reqModel.setPrompt(savePrompts.toString() + "User:" + s + md + "\nChatGPT:");
+            reqModel.setPrompt(s + md);
+            if (binding.startConversation.getTag().toString().equals("stop") || conCount > 0) {
+                if (savePrompts.length() == 0) {
+                    savePrompts.append("The following is a conversation with an AI assistant.The assistant is helpful, creative, and well-reasoned. His answers are apt, and very friendly.");
+                }
+                savePrompts.append("\nHuman:").append(s).append(md).append("\nAI:");
+                MyUtil.tuneModel.setStop("Human:,AI:");
+                reqModel.setPrompt(savePrompts.toString());
             }
             String model = sharedPreferences2.getString("model", "text-davinci-003");
             float temperature = sharedPreferences2.getFloat("temperature1", 0.9f);
@@ -355,26 +395,23 @@ public class ChatFragment extends Fragment {
             SomeActions someActions = resModel -> {
                 Log.d(TAG2, "someActions: someActions start");
                 String text = resModel.getChoices().get(0).getText();
-                editText.setText("");
                 if (threadIdField == -1) {
                     myViewModel.insertChatThread(new ChatThread(s, text));
                     Log.d(TAG2, "someActions: insertChatThread");
-                    handler.postDelayed(() -> myViewModel.selectChatThreadInsertId().observe(getViewLifecycleOwner(), i ->
+                    handler.postDelayed(() -> myViewModel.selectChatThreadInsertId().observe(requireActivity(), i ->
                     {
                         if (i != null) {
                             threadIdField = i;
-                            savePrompts(binding.startConversation.getTag().toString(), s, text);
+                            savePrompts(binding.startConversation.getTag().toString(), text);
                             insertChat(s, myAdapter, recyclerView, resModel, threadIdField, reqModel.getModel());
                             Log.d(TAG2, "someActions: insert chat \n\n\n");
                         }
                     }), 200);
                 } else {
-                    savePrompts(binding.startConversation.getTag().toString(), s, text);
+                    savePrompts(binding.startConversation.getTag().toString(), text);
                     insertChat(s, myAdapter, recyclerView, resModel, threadIdField, reqModel.getModel());
                 }
-                if (!MyUtil.tuneModel.getInjStart().isEmpty()) {
-                    editText.setText(MyUtil.tuneModel.getInjStart());
-                }
+
                 binding.textView.setVisibility(View.GONE);
                 Log.d(TAG2, "someActions: someActions setup");
             };
@@ -389,13 +426,13 @@ public class ChatFragment extends Fragment {
                         reqModel.setTop_p(example2.getTop_p());
                     }
                     // if (isOpenTune) {
-                    onOpenTune(key, reqModel, someActions);
+                    onOpenTune(key, reqModel, s, someActions);
                     // }else getResponseText(key, reqModel, someActions);
                 });
                 Log.d(TAG2, "onCreateView: exampleId != -1");
             } else {
                 //if (isOpenTune) {
-                onOpenTune(key, reqModel, someActions);
+                onOpenTune(key, reqModel, s, someActions);
                 //  }else getResponseText(key, reqModel,someActions);
                 Log.d(TAG, "onCreateView: After Trans Prompt 2:" + reqModel.getPrompt());
                 Log.d(TAG2, "onCreateView: exampleId == -1");
@@ -420,7 +457,7 @@ public class ChatFragment extends Fragment {
             binding.exampleImage.setVisibility(View.VISIBLE);
             myViewModel.getExample(exampleId).observe(getViewLifecycleOwner(), example2 -> {
                 if (example2 != null) {
-                    binding.chatMaterialToolbar.setTitle(example2.getTitle());
+                   // binding.chatMaterialToolbar.setTitle(example2.getTitle());
                     if (editText != null && list.size() < 1) {
                         editText.setText(example2.getPrompt());
                         editText.setSelection(example2.getPrompt().length());
@@ -449,66 +486,8 @@ public class ChatFragment extends Fragment {
         return binding.getRoot();
     }
 
-    private void savePrompts(String tag, String prompts, String response) {
-        if (tag.equals("stop")) {
-            savePrompts.append("User:").append(prompts).append("\nChatGPT:").append(response);
-        } else savePrompts.delete(0, savePrompts.length());
-    }
 
-    private void insertChat(String s, AITextAdapter myAdapter, RecyclerView recyclerView, ResponseModel2 resModel, int treadId, String model) {
-        if (isExecute) {
-            String text = resModel.getChoices().get(0).getText();
-            Log.d(TAG, "insertChat: "+resModel.getModel()+"\n\n"+model);
-            ChatModel chatModel1 = new ChatModel(treadId, s, text
-                    , resModel.getUsage().getPromptTokens(), resModel.getUsage().getCompletionTokens()
-                    , resModel.getUsage().getTotalTokens(),resModel.getModel());
-
-            myViewModel.getUser().observe(getViewLifecycleOwner(), user -> {
-                if (isExecute2) {
-                    if (user != null) {
-                        int total_tokens = resModel.getUsage().getTotalTokens();
-                        int tokens = user.getTokens();
-                        int token = tokens + total_tokens;
-                        user.setTokens(token);
-                        double xx = 0.0;
-                        // Handle the case where model is not one of the expected values
-                        if (model.contains("ada")) {
-                            xx = 0.0004;
-                        } else if (model.contains("davinci")) {
-                            xx = 0.02;
-                            if (model.length()>22) {
-                                xx = 0.0;
-                            }
-                        } else if (model.contains("babbage")) {
-                            xx = 0.0005;
-                        } else if (model.contains("curie")) {
-                            xx = 0.002;
-                        }
-                        float fark = sharedPreferences.getFloat("fark", 0.0f);
-                        BigDecimal b = new BigDecimal(String.valueOf(fark));
-                        double d = b.doubleValue();
-                        double v = 18 - token / 1000.0 * xx + d;
-                        user.setMoney(v);
-                        if (fark != 0.0f) {
-                            sharedPreferences.edit().putFloat("fark", 0.0f).apply();
-                        }
-                        myViewModel.updateUser(user);
-                        isExecute2 = false;
-                    }
-                }
-            });
-            list.add(chatModel1);
-            myViewModel.insertChatModel(chatModel1);
-            myViewModel.selectChatThreadInsertId().removeObservers(this);
-            myViewModel.getChatModels(treadId).removeObservers(this);
-            myAdapter.notifyItemInserted(list.size() - 1);
-            recyclerView.scrollToPosition(list.size() - 1);
-            isExecute = false;
-        }
-        isExecute2 = true;
-    }
-
-    private void onOpenTune(String key, ReqModel reqModel, SomeActions someActions) {
+    private void onOpenTune(String key, ReqModel reqModel, String s, SomeActions someActions) {
         Log.d(TAG2, "onCreateView: openTune start");
         if (MyUtil.tuneModel.isOpen()) {
             reqModel.setModel(MyUtil.tuneModel.getModel());
@@ -533,41 +512,37 @@ public class ChatFragment extends Fragment {
                     Log.d(TAG2, "onCreateView: transModel != null  :" + transModel.getText());
                     reqModel.setPrompt(transModel.getText());
                     Log.d(TAG, "onCreateView: After Trans Prompt in:" + reqModel.getPrompt());
-                    getResponseText(key, reqModel, someActions);
-
+                    getResponseText(key, reqModel, s, someActions);
                 }
                 //Toast.makeText(getContext(), "", Toast.LENGTH_SHORT).show();
             });
             Log.d(TAG, "onCreateView: After Trans Prompt 1:" + reqModel.getPrompt());
         } else {
-            getResponseText(key, reqModel, someActions);
+            getResponseText(key, reqModel, s, someActions);
         }
     }
 
-    private void getResponseText(String key, ReqModel reqModel, SomeActions someActions) {
+    private void getResponseText(String key, ReqModel reqModel, String s, SomeActions someActions) {
         Log.d(TAG2, "getResponseText: getResponseText start\n " + reqModel.toString());
+        binding.stateText.setText("正在请求");
+        boolean play = binding.startConversation.getTag().toString().equals("play");
+        if (play) {
+            binding.startConversation.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_stop_24));
+        }
         myViewModel.getTex(key, reqModel).observe(getViewLifecycleOwner(), resModel -> {
-            Log.d(TAG2, "getResponseText: myViewModel.getTex" + resModel);
             if (resModel.getErrorMessage() == null) {
-                Log.d(TAG2, "getResponseText: resModel != null");
                 if (resModel.getErrorParent() != null) {
-                    Toast.makeText(getContext(), resModel.getErrorParent().getError().getType(), Toast.LENGTH_SHORT).show();
-                    showOrCancelProgress(progressBar, button, false);
-                    return;
-                }
-                if (resModel.getChoices() != null) {
-                    Log.d(TAG2, "getResponseText: resModel.choices != null");
-                    if (MyUtil.tuneModel.getInjRestart() != null) {
-                        texts = MyUtil.tuneModel.getInjRestart() + resModel.getChoices().get(0).getText();
-                    } else {
-                        texts = resModel.getChoices().get(0).getText();
-                    }
+                    Toast.makeText(getContext(), resModel.getErrorParent().getError().getMessage(), Toast.LENGTH_SHORT).show();
+                    texts = resModel.getErrorParent().getError().getType() + "\n" + resModel.getErrorParent().getError().getMessage();
+                    myAdapter.isError = true;
+                }else if (resModel.getChoices() != null) {
+                    myAdapter.isError = false;
+                    texts = resModel.getChoices().get(0).getText();
                     Log.d(TAG2, "getResponseText: text:" + texts);
                     String temp = texts.length() >= 3 ? texts.substring(0, 2) : "";
                     if (temp.contains("\n")) {
                         texts = texts.trim();
                     }
-                    resModel.getChoices().get(0).setText(texts);
                     if (MyUtil.tuneModel.isTrans()) {
                         myViewModel.getTrans(texts, 2).observe(getViewLifecycleOwner(), transModel -> {
                             if (transModel != null) {
@@ -580,18 +555,90 @@ public class ChatFragment extends Fragment {
                             }
                         });
                     } else {
-                        Log.d(TAG2, "getResponseText: !MyUtil.tuneModel.isTrans()");
                         someActions.Action(resModel);
                     }
-
-                } else texts = "Something wrong! Please try again later!";
+                } else {
+                    texts = "出错了！";
+                    myAdapter.isError = true;
+                }
             } else {
+                texts = resModel.getErrorMessage();
                 Toast.makeText(requireContext(), resModel.getErrorMessage(), Toast.LENGTH_SHORT).show();
+                myAdapter.isError = true;
             }
-            Log.d(TAG2, "getResponseText: After trans:" + texts);
             showOrCancelProgress(progressBar, button, false);
+            if (myAdapter.mTimer != null) {
+                myAdapter.mTimer.cancel();
+            }
+            myAdapter.mTimer = null;
+            if (myAdapter.isError) {
+                myAdapter.updateList2(new ChatModel(threadIdField, s, texts));
+            }
+            if (play) {
+                binding.startConversation.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_play_arrow_24));
+                binding.startConversation.setTag("play");
+            }
+            Log.d(TAG, "getResponseText: play: "+play);
+            binding.stateText.setText("已记" + conCount + "对话");
         });
-        Log.d(TAG2, "getResponseText: After getResponseText:" + texts);
+    }
+
+    private void insertChat(String s, AITextAdapter myAdapter, RecyclerView recyclerView, ResponseModel2 resModel, int treadId, String model) {
+        if (isExecute) {
+            String text = resModel.getChoices().get(0).getText();
+            Log.d(TAG, "insertChat: " + resModel.getModel() + "\n\n" + model);
+            ChatModel chatModel1 = new ChatModel(treadId, s, text
+                    , resModel.getUsage().getPromptTokens(), resModel.getUsage().getCompletionTokens()
+                    , resModel.getUsage().getTotalTokens(), resModel.getModel());
+
+            myViewModel.getUser().observe(getViewLifecycleOwner(), user -> {
+                if (isExecute2) {
+                    if (user != null) {
+                        int total_tokens = resModel.getUsage().getTotalTokens();
+                        int tokens = user.getTokens();
+                        int token = tokens + total_tokens;
+                        user.setTokens(token);
+                        double xx = 0.0;
+                        // Handle the case where model is not one of the expected values
+                        if (model.contains("ada")) {
+                            xx = 0.0004;
+                        } else if (model.contains("davinci")) {
+                            xx = 0.02;
+                            if (model.length() > 22) {
+                                xx = 0.0;
+                            }
+                        } else if (model.contains("babbage")) {
+                            xx = 0.0005;
+                        } else if (model.contains("curie")) {
+                            xx = 0.002;
+                        }
+                        float fark = sharedPreferences.getFloat("fark", 0.0f);
+                        BigDecimal b = new BigDecimal(String.valueOf(fark));
+                        double d = b.doubleValue();
+                        double v = 18 - token / 1000.0 * xx + d;
+                        user.setMoney(v);
+                        if (fark != 0.0f) {
+                            sharedPreferences.edit().putFloat("fark", 0.0f).apply();
+                        }
+                        myViewModel.updateUser(user);
+                        isExecute2 = false;
+                    }
+                }
+            });
+            myViewModel.insertChatModel(chatModel1);
+            myViewModel.selectChatThreadInsertId().removeObservers(this);
+            myViewModel.getChatModels(treadId).removeObservers(this);
+            myAdapter.updateList2(chatModel1);
+            //myAdapter.notifyItemInserted(list.size() - 1);
+            if (myAdapter.mTimer != null) {
+                myAdapter.mTimer.cancel();
+            }
+            myAdapter.mTimer = null;
+            recyclerView.scrollToPosition(myAdapter.getItemCount() - 1);
+            //list.add(chatModel1);
+            isExecute = false;
+        }
+        isExecute2 = true;
     }
 
     @Override
@@ -615,6 +662,11 @@ public class ChatFragment extends Fragment {
         if (ChatActivity.drawerLayout != null) {
             ChatActivity.drawerLayout.close();
         }
+        if (myViewModel != null) {
+            myViewModel.cancelData();
+        }
+        conCount = 0;
+        myAdapter.onDestroy();
         AITextAdapter.isMultiSelectMode = false;
         // chatFragment = null;
         Log.d("QIGUAI", "Fragment onDestroyView: ");
@@ -627,6 +679,7 @@ public class ChatFragment extends Fragment {
         exampleId = -1;
         threadIdField = -1;
         // list = null;
+        myAdapter.onDestroy();
         savePrompts.setLength(0);
         Log.d("QIGUAI", "Fragment onDestroy: ");
         HistoryFragment.recyclerViewOnClickData.clear();
@@ -655,6 +708,8 @@ public class ChatFragment extends Fragment {
         binding.addConnectTextView.setVisibility(View.GONE);
         binding.probText.setVisibility(View.VISIBLE);
         binding.button.setVisibility(View.VISIBLE);
+        binding.chatMaterialToolbar.setNavigationIcon(ContextCompat.getDrawable(requireContext(), R.drawable.ic_history));
+        binding.descriptionView.setVisibility(View.VISIBLE);
         AITextAdapter.isMultiSelectMode = false;
         AITextAdapter.selectAll = 0;
         HistoryFragment.recyclerViewOnClickData.clear();
@@ -662,9 +717,9 @@ public class ChatFragment extends Fragment {
         Log.d("NOACTIVITY", "cancelSelected: ");
     }
 
-    private void showOrCancelProgress(ProgressBar progressBar, AppCompatImageButton button,boolean show) {
+    private void showOrCancelProgress(ProgressBar progressBar, AppCompatImageButton button, boolean show) {
         if (show) {
-            progressBar.setVisibility(View.VISIBLE);
+            // progressBar.setVisibility(View.VISIBLE);
             button.setEnabled(false);
             button.setAlpha(0.4f);
         } else {
@@ -672,6 +727,15 @@ public class ChatFragment extends Fragment {
             progressBar.setVisibility(View.GONE);
             button.setAlpha(1f);
         }
+    }
+
+    private void savePrompts(String tag, String response) {
+        if (tag.equals("stop")) {
+            conCount++;
+            binding.stateText.setText("已记" + conCount + "对话");
+            savePrompts.append(response);
+        }
+        Log.d(TAG, "savePrompts: " + conCount);
     }
 
 }

@@ -10,7 +10,7 @@ android {
         minSdk 21
         targetSdk 32
         versionCode 1
-        versionName "1.0.5"
+        versionName "1.0.51"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -73,10 +73,11 @@ dependencies {
     implementation 'io.noties.markwon:linkify:4.6.2'
     implementation 'io.noties.markwon:ext-tables:4.6.2'
     implementation 'io.noties.markwon:inline-parser:4.6.2'
+    implementation 'io.noties.markwon:inline-parser:4.6.2'
     implementation 'io.noties:prism4j:2.0.0'
+    implementation 'io.noties.markwon:image-glide:4.6.2'
     annotationProcessor 'io.noties:prism4j-bundler:2.0.0'
     implementation 'com.github.bumptech.glide:glide:4.12.0'
-
     implementation 'com.github.razir.progressbutton:progressbutton:2.1.0'
     //Scalable Size Unit
     implementation 'com.intuit.sdp:sdp-android:1.0.6'

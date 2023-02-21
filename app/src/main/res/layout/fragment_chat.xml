@@ -13,6 +13,7 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@android:color/transparent"
         android:theme="?attr/actionBarTheme"
+        app:subtitleCentered="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -32,28 +33,42 @@
 
         <ImageView
             android:id="@+id/example_image"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="@dimen/_18sdp"
+            android:layout_height="@dimen/_18sdp"
             android:layout_gravity="end"
-            android:layout_marginEnd="10dp"
+            android:layout_marginHorizontal="@dimen/_5sdp"
             android:contentDescription="@string/title_activity_settings"
-            android:padding="8dp"
             android:src="@drawable/analogy_maker"
             android:visibility="gone"
             app:tint="@color/black_white" />
 
+        <View
+            android:id="@+id/descriptionView"
+            android:layout_width="@dimen/_15sdp"
+            android:layout_height="@dimen/_15sdp"
+            android:background="@drawable/q_a"
+            android:backgroundTint="@color/black_white2"
+            android:layout_gravity="end"
+            android:layout_marginEnd="@dimen/_5sdp"
+            android:alpha="0.4"
+            />
         <ImageView
             android:id="@+id/start_conversation"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="@dimen/_20sdp"
+            android:layout_height="@dimen/_20sdp"
             android:layout_gravity="end"
             android:layout_marginEnd="10dp"
             android:contentDescription="@string/title_activity_settings"
-            android:padding="8dp"
             android:src="@drawable/ic_play_arrow_24"
             android:tag="stop"
-            android:tooltipText="连续对话开关" />
+            android:tooltipText="连续对话开关。默认开启。关闭时将不会考虑上下文。如果正在请求状态起到取消请求作用。" />
 
+        <TextView
+            android:id="@+id/stateText"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/_8ssp" />
         <ImageView
             android:id="@+id/deleteButton"
             android:layout_width="wrap_content"
@@ -78,6 +93,8 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:clickable="true"
+        android:focusable="true"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toTopOf="@+id/constraintLayout2"
         app:layout_constraintEnd_toEndOf="parent"

@@ -27,8 +27,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ChatRepository {
+    private static final String TAG = "DownStream";
     private final Requests requests;
     private final ChatDatabase database;
+    public Call<ResponseModel2> myCall;
 
     public ChatRepository(ChatDatabase database) {
         this.database = database;
@@ -37,8 +39,9 @@ public class ChatRepository {
     }
 
     public LiveData<ResponseModel2> getTex(String token, ReqModel reqModel) {
-        MutableLiveData<ResponseModel2> liveData = new MediatorLiveData<>();
-        requests.getTex(token, reqModel).enqueue(new Callback<ResponseModel2>() {
+        MutableLiveData<ResponseModel2> liveData = new MutableLiveData<>();
+        myCall = requests.getTex(token, reqModel);
+        myCall.enqueue(new Callback<ResponseModel2>() {
             @Override
             public void onResponse(@NonNull Call<ResponseModel2> call, @NonNull Response<ResponseModel2> response) {
                 if (response.errorBody() == null) {
@@ -60,12 +63,11 @@ public class ChatRepository {
 
             @Override
             public void onFailure(@NonNull Call<ResponseModel2> call, @NonNull Throwable t) {
-                liveData.setValue(new ResponseModel2(t.getMessage()));
+                liveData.setValue(new ResponseModel2(t.getMessage()!=null&&!t.getMessage().trim().isEmpty()?t.getMessage():call.toString()));
             }
         });
         return liveData;
     }
-
 
 
     public LiveData<TransModel> getTrans(String url, String msg, int type) {
