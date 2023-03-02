@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class ResponseModel2 {
+public class ResponseModel {
 
     /**
      * id : cmpl-6OPCrwxRNG2J4Ofx1wrDc9WpZfsnS
@@ -43,7 +43,7 @@ public class ResponseModel2 {
 
     private String errorMessage;
 
-    public ResponseModel2(String errorMessage) {
+    public ResponseModel(String errorMessage) {
         this.errorMessage = errorMessage;
     }
 

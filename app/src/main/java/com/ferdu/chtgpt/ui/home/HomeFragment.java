@@ -35,12 +35,14 @@ import com.ferdu.chtgpt.viewmodel.MyViewModel;
 
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 import cn.leancloud.LCObject;
 import cn.leancloud.LCQuery;
@@ -53,7 +55,6 @@ import io.reactivex.disposables.Disposable;
  * create an instance of this fragment.
  */
 public class HomeFragment extends Fragment {
-
 
 
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -125,7 +126,7 @@ public class HomeFragment extends Fragment {
             myViewModel.getPrompts().observe(getViewLifecycleOwner(), promptModels -> {
                 if (promptModels != null) {
                     lists.addAll(promptModels);
-                    if (isFirst && lists.size()>0) {
+                    if (isFirst && lists.size() > 0) {
                         Collections.shuffle(lists);
                         isFirst = false;
                     }
@@ -151,7 +152,8 @@ public class HomeFragment extends Fragment {
                     LCObject lcObject = lcObjects.get(lcObjects.size() - 1);
                     String versionCode = Objects.requireNonNull(lcObject.getServerData().get(UpdateApk.VERSIONCODE)).toString();
                     String v2 = String.valueOf(AppUtils.getVersionCode(requireContext()));
-                    if (1 == AppUtils.compareVersion(versionCode, v2)) {
+                    int i = AppUtils.compareVersion(versionCode, v2);
+                    if (1 == i) {
                         UpdateVersionShowDialog.show(requireActivity(), AppVersionInfoBean.parse(lcObject));
                         edit.putBoolean("isCheckVersion", false);
                     } else {
@@ -170,12 +172,10 @@ public class HomeFragment extends Fragment {
 
                 }
             });
-            Date date = new Date();
-            date.setTime(keyShared.getLong("versionDate", 1000));
-            LCQuery<LCObject> query2 = new LCQuery<>("Prompt").limit(200);
-//            if (true) {
-//                query2= query2.whereGreaterThan("updatedAt", date)
-//            }
+            AtomicReference<Date> date = new AtomicReference<>(new Date());
+            LCQuery<LCObject> query2 = new LCQuery<>("Prompt").limit(200).orderByDescending("updatedAt");
+
+
             query2.findInBackground().subscribe(new Observer<List<LCObject>>() {
                 @Override
                 public void onSubscribe(Disposable d) {
@@ -184,20 +184,29 @@ public class HomeFragment extends Fragment {
                 @Override
                 public void onNext(List<LCObject> lcObjects) {
                     List<PromptModel> promptModels = new ArrayList<>();
+                    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.CHINA);
+
                     for (int i = 0; i < lcObjects.size(); i++) {
                         promptModels.add(new PromptModel(lcObjects.get(i).getObjectId(), lcObjects.get(i).get("act").toString()
-                                , lcObjects.get(i).get("prompt").toString()));
-                        Log.d("TAGupdate", "onNext: " + lcObjects.get(i).getUpdatedAt());
+                                , lcObjects.get(i).get("prompt").toString(), dateFormat.format( lcObjects.get(i).getCreatedAt()), dateFormat.format( lcObjects.get(i).getUpdatedAt())));
                         if (1 > lists.size()) {
                             lists.add(promptModels.get(i));
                             myViewModel.insertPrompts(promptModels.get(i));
-                        } else if (lcObjects.get(i).getUpdatedAt().after(date)) {
-                            if (myViewModel.getAtPrompts(lcObjects.get(i).getObjectId()) != null) {
-                                myViewModel.updatePrompts(promptModels.get(i));
-                            } else {
-                                lists.add(promptModels.get(i));
-                                myViewModel.insertPrompts(promptModels.get(i));
-                            }
+                        }
+                        if (lcObjects.get(i).getUpdatedAt().after(new Date(keyShared.getLong("updatedAt", 1000)))) {
+                            int finalI = i;
+                            myViewModel.getAtPrompts(lcObjects.get(i).getObjectId()).observe(getViewLifecycleOwner(), promptModel -> {
+                                if (promptModel != null) {
+                                    myViewModel.updatePrompts(promptModels.get(finalI));
+                                    Log.d("TAGupdate", " onNext-Date.Updated Prompts " +lcObjects.get(0).getUpdatedAt());
+
+                                } else {
+                                    lists.add(promptModels.get(finalI));
+                                    Log.d("TAGupdate", " onNext-Date.Add Prompts " +lcObjects.get(0).getUpdatedAt());
+                                    myViewModel.insertPrompts(promptModels.get(finalI));
+                                }
+                            });
+
                         }
                     }
 
@@ -208,6 +217,8 @@ public class HomeFragment extends Fragment {
                         isFirst = false;
                     }
                     promptsAdapter.updateData(lists, false);
+                    edit.putLong("updatedAt", lcObjects.get(0).getUpdatedAt().getTime());
+                    edit.apply();
                 }
 
                 @Override
@@ -220,6 +231,7 @@ public class HomeFragment extends Fragment {
 
                 }
             });
+
         }
         binding.keys.setOnClickListener(v -> {
             Intent intent = new Intent();

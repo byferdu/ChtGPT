@@ -25,7 +25,8 @@ import androidx.lifecycle.Transformations;
 
 import com.ferdu.chtgpt.R;
 import com.ferdu.chtgpt.models.ReqModel;
-import com.ferdu.chtgpt.models.ResponseModel2;
+import com.ferdu.chtgpt.models.RequestModel;
+import com.ferdu.chtgpt.models.ResponseModel;
 import com.ferdu.chtgpt.models.TuneModel;
 import com.ferdu.chtgpt.viewmodel.MyViewModel;
 import com.google.android.material.textfield.TextInputLayout;
@@ -36,6 +37,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import io.noties.markwon.AbstractMarkwonPlugin;
@@ -273,7 +275,7 @@ public class MyUtil {
         if (Objects.equals(key, "key")) {
             key = MyUtil.getShared(context).getString("key", "");
         }
-        LiveData<ResponseModel2> responseDataLiveData = myViewModel.getTex("Bearer " + key, reqModel);
+        LiveData<ResponseModel> responseDataLiveData = myViewModel.getTex("Bearer " + key, reqModel);
         String finalKey = key;
         return Transformations.map(responseDataLiveData, responseData -> {
             if (responseData.getErrorMessage() == null) {
@@ -314,27 +316,47 @@ public class MyUtil {
         if (Objects.equals(key, "key")) {
             key = MyUtil.getShared(context).getString("key", "");
         }
-        String finalKey = key;
         AtomicReference<String> errorMessage = new AtomicReference<>("");
+        AtomicBoolean isSuccess = new AtomicBoolean(false);
+        String finalKey = key;
         myViewModel.getTex(key, reqModel).observe(context, responseData -> {
             if (responseData.getErrorMessage() == null) {
-                if (responseData.getErrorParent() != null ) {
+                if (responseData.getErrorParent() != null) {
                     errorMessage.set(responseData.getErrorParent().getError().getMessage());
-                    Toast.makeText(context, responseData.getErrorParent().getError().getMessage(), Toast.LENGTH_SHORT).show();
-                    Log.d("requestTest", "requestTest: responseData.getError() != null\n " + responseData.getErrorParent().getError().getMessage() + "\n");
-                    listener.onRequestCompleted(false, responseData.getErrorParent().getError().getMessage());
+                    isSuccess.set(false);
 
-                }  else {
-                    Log.d("requestTest", "requestTest: responseData.getChoices() \n\n " + responseData.getChoices() + "\n");
-                    Log.d("requestTest", "requestTest: reqModel.toString \n\n " + reqModel.toString() + "\n");
-                    Log.d("requestTest", "requestTest: key \n\n " + finalKey + "\n");
-                    listener.onRequestCompleted(responseData.getChoices() != null, errorMessage.get());
+                } else {
+                    errorMessage.set("");
+                    isSuccess.set(responseData.getChoices() != null);
                 }
             } else {
-                Toast.makeText(context, responseData.getErrorMessage(), Toast.LENGTH_SHORT).show();
-                Log.d("requestTest", "requestTest: responseData.getErrorMessage() =! null \n\n " + responseData.getErrorMessage() + "\n");
-                listener.onRequestCompleted(false, responseData.getErrorMessage());
+                errorMessage.set(responseData.getErrorMessage());
+                isSuccess.set(false);
             }
+            if (!isSuccess.get()) {
+                RequestModel requestModel = new RequestModel();
+                requestModel.setModel(requestModel.getModel());
+                List<RequestModel.MessagesDTO> messagesDTOS = new ArrayList<>();
+                messagesDTOS.add(new RequestModel.MessagesDTO("user", "hello"));
+                requestModel.setMessages(messagesDTOS);
+                myViewModel.chatCompletions(finalKey, requestModel).observe(context, resModel -> {
+                    if (resModel.getErrorMessage() == null) {
+                        if (resModel.getErrorParent() != null) {
+                            errorMessage.set(resModel.getErrorParent().getError().getMessage());
+                            isSuccess.set(false);
+                        } else {
+                            errorMessage.set("");
+                            isSuccess.set(resModel.getChoices() != null);
+                        }
+                    } else {
+                        errorMessage.set(resModel.getErrorMessage());
+                        isSuccess.set(false);
+                    }
+                    listener.onRequestCompleted(isSuccess.get(), errorMessage.get());
+                });
+            }else listener.onRequestCompleted(isSuccess.get(), errorMessage.get());
+            // Toast.makeText(context, responseData.getErrorParent().getError().getMessage(), Toast.LENGTH_SHORT).show();
+
         });
     }
 

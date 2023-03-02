@@ -24,7 +24,7 @@
         app:title="最大长度"
         android:max="2048"
         app:min="5"
-        android:defaultValue="400"
+        android:defaultValue="2000"
         app:showSeekBarValue="true"
         app:summary="要生成的词元的最大数量。在提示和完成之间，请求最多可以使用2,048或4,000个词元共享。确切的极限因型号而异。(英文4个字符≈1个词元,中文1个字符≈2个词元)"
         />

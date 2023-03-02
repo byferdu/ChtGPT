@@ -48,12 +48,14 @@ public class AppUtils {
         if (v1.equals(v2)) {
             return 0;
         }
-        if (v1.contains("v"))
+        if (v1.contains("v")) {
             v1 = v1.replace("v", "");
-        if (v2.contains("v"))
+        }
+        if (v2.contains("v")) {
             v2 = v2.replace("v", "");
-        String[] version1Array = v1.split("[._]");
-        String[] version2Array = v2.split("[._]");
+        }
+        String[] version1Array = normalizeVersion(v1).split("[._]");
+        String[] version2Array = normalizeVersion(v2).split("[._]");
         int index = 0;
         int minLen = Math.min(version1Array.length, version2Array.length);
         long diff = 0;
@@ -79,6 +81,17 @@ public class AppUtils {
         } else {
             return diff > 0 ? 1 : -1;
         }
+    }
+
+    private static String normalizeVersion(String version) {
+        String[] parts = version.split("[._]");
+        StringBuilder sb = new StringBuilder();
+        for (String part : parts) {
+            sb.append(String.format("%03d", Integer.parseInt(part)));
+            sb.append(".");
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        return sb.toString();
     }
 
     /**

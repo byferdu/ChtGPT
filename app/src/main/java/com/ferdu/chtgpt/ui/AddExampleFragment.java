@@ -19,6 +19,10 @@ import com.ferdu.chtgpt.ui.home.PromptModel;
 import com.ferdu.chtgpt.util.MyUtil;
 import com.ferdu.chtgpt.viewmodel.MyViewModel;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 
 import cn.leancloud.LCObject;
@@ -145,7 +149,9 @@ public class AddExampleFragment extends Fragment {
                                 }
                             });
                         }
-                        myViewModel.insertPrompts(new PromptModel("63e1d" + StringUtil.getRandomString(7), text, text1));
+                        DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.CHINA);
+                        Date date = new Date(System.currentTimeMillis());
+                        myViewModel.insertPrompts(new PromptModel("63e1d" + StringUtil.getRandomString(7), text, text1,DATE_FORMAT.format(date),DATE_FORMAT.format(date)));
                         Toast.makeText(requireContext(), "添加成功！", Toast.LENGTH_SHORT).show();
                         Navigation.findNavController(binding.getRoot()).navigateUp();
                         break;

@@ -2,13 +2,10 @@ package com.ferdu.chtgpt.database;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
-import androidx.room.migration.Migration;
-import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.ferdu.chtgpt.models.dao.ChatModelDao;
 import com.ferdu.chtgpt.models.dao.ChatThreadDao;
@@ -41,35 +38,36 @@ public abstract class ChatDatabase extends RoomDatabase {
         if (INSTANCE == null) {
             INSTANCE = Room.databaseBuilder(context.getApplicationContext(), ChatDatabase.class, "chat_database")
                     .allowMainThreadQueries()
+                    .fallbackToDestructiveMigration()
                     .createFromAsset("database/chat_yu.db")
-                    .addMigrations(new Migration(8, 9) {
-                        @Override
-                        public void migrate(@NonNull SupportSQLiteDatabase database) {
-                            database.execSQL("Create table PromptModel (id TEXT primary key not null, act TEXT," +
-                                    "prompt TEXT," +
-                                    "createTime TEXT," +
-                                    "updateTime TEXT);");
-                        }
-                         }).addMigrations(new Migration(9, 10) {
-                        @Override
-                        public void migrate(@NonNull SupportSQLiteDatabase database) {
-
-                        }
-                    }).addMigrations(new Migration(10, 11) {
-                        @Override
-                        public void migrate(@NonNull SupportSQLiteDatabase database) {
-                            database.execSQL("Create table Model (id INTEGER not null\n" +
-                                    "        primary key autoincrement, model TEXT," +
-                                    "summary TEXT);");
-                        }
-                    })
-                    .addMigrations(new Migration(11, 12) {
-                        @Override
-                        public void migrate(@NonNull SupportSQLiteDatabase database) {
-                            database.execSQL("alter table ChatModel\n" +
-                                    "    add model TEXT;");
-                        }
-                    })
+//                    .addMigrations(new Migration(8, 9) {
+//                        @Override
+//                        public void migrate(@NonNull SupportSQLiteDatabase database) {
+//                            database.execSQL("Create table PromptModel (id TEXT primary key not null, act TEXT," +
+//                                    "prompt TEXT," +
+//                                    "createTime TEXT," +
+//                                    "updateTime TEXT);");
+//                        }
+//                         }).addMigrations(new Migration(9, 10) {
+//                        @Override
+//                        public void migrate(@NonNull SupportSQLiteDatabase database) {
+//
+//                        }
+//                    }).addMigrations(new Migration(10, 11) {
+//                        @Override
+//                        public void migrate(@NonNull SupportSQLiteDatabase database) {
+//                            database.execSQL("Create table Model (id INTEGER not null\n" +
+//                                    "        primary key autoincrement, model TEXT," +
+//                                    "summary TEXT);");
+//                        }
+//                    })
+//                    .addMigrations(new Migration(11, 12) {
+//                        @Override
+//                        public void migrate(@NonNull SupportSQLiteDatabase database) {
+//                            database.execSQL("alter table ChatModel\n" +
+//                                    "    add model TEXT;");
+//                        }
+//                    })
                     .build();
 
         }

@@ -4,8 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import java.sql.Date;
-
 @Entity
 public class PromptModel {
     @NonNull
@@ -31,12 +29,12 @@ public class PromptModel {
         this.updateTime = updateTime;
     }
 
-    public PromptModel(String id, String act, String prompt) {
+    public PromptModel(@NonNull String id, String act, String prompt, String createTime, String updateTime) {
         this.id = id;
         this.act = act;
         this.prompt = prompt;
-        createTime = new Date(System.currentTimeMillis()).toString();
-        updateTime = createTime;
+        this.createTime = createTime;
+        this.updateTime = updateTime;
     }
 
     public String getId() {

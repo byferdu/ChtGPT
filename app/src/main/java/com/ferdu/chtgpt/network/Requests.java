@@ -1,8 +1,9 @@
 package com.ferdu.chtgpt.network;
 
 import com.ferdu.chtgpt.models.ReqModel;
+import com.ferdu.chtgpt.models.RequestModel;
 import com.ferdu.chtgpt.models.ResModel;
-import com.ferdu.chtgpt.models.ResponseModel2;
+import com.ferdu.chtgpt.models.ResponseModel;
 import com.ferdu.chtgpt.models.TransModel;
 
 import retrofit2.Call;
@@ -19,11 +20,11 @@ public interface Requests {
     @Streaming
     @POST("/v1/completions")
     @Headers({"Content-Type:application/json"})
-    Call<ResponseModel2> getTex(@Header("Authorization") String token, @Body ReqModel reqModel);
-
-    @POST("/v1/text-davinci-002/completions")
-    @Headers({"Content-Type:application/json","CONNECT_TIMEOUT:300000", "READ_TIMEOUT:300000", "WRITE_TIMEOUT:300000"})
-    Call<ResModel> getTex2(@Header("Authorization") String token, @Body ReqModel reqModel);
+    Call<ResponseModel> getTex(@Header("Authorization") String token, @Body ReqModel reqModel);
+    @Streaming
+    @POST("/v1/chat/completions")
+    @Headers({"Content-Type:application/json"})
+    Call<ResModel> chatCompletions(@Header("Authorization") String token, @Body RequestModel reqModel);
 
 
     @GET

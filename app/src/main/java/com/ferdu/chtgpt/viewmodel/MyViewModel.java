@@ -8,7 +8,9 @@ import androidx.lifecycle.LiveData;
 
 import com.ferdu.chtgpt.database.ChatDatabase;
 import com.ferdu.chtgpt.models.ReqModel;
-import com.ferdu.chtgpt.models.ResponseModel2;
+import com.ferdu.chtgpt.models.RequestModel;
+import com.ferdu.chtgpt.models.ResModel;
+import com.ferdu.chtgpt.models.ResponseModel;
 import com.ferdu.chtgpt.models.TransModel;
 import com.ferdu.chtgpt.models.data.ChatModel;
 import com.ferdu.chtgpt.models.data.ChatThread;
@@ -42,8 +44,11 @@ public class MyViewModel extends AndroidViewModel {
             repositories.myCall.cancel();
         }
     }
-    public LiveData<ResponseModel2> getTex(String token, ReqModel reqModel) {
+    public LiveData<ResponseModel> getTex(String token, ReqModel reqModel) {
         return repositories.getTex(token, reqModel);
+    }
+    public LiveData<ResModel> chatCompletions(String token, RequestModel reqModel) {
+        return repositories.chatCompletions(token, reqModel);
     }
 
     public void updateUser(User user) {
@@ -93,6 +98,9 @@ public class MyViewModel extends AndroidViewModel {
     }
     public LiveData<List<PromptModel>> getPrompts() {
         return database.promptDAO().getAll();
+    }
+    public LiveData<String> getPromptsUpdateTime() {
+        return database.promptDAO().getPromptUpdate();
     }
     public LiveData<Integer> getPromptCount() {
         return database.promptDAO().getPromptCount();

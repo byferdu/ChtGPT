@@ -11,7 +11,9 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.ferdu.chtgpt.database.ChatDatabase;
 import com.ferdu.chtgpt.models.ReqModel;
-import com.ferdu.chtgpt.models.ResponseModel2;
+import com.ferdu.chtgpt.models.RequestModel;
+import com.ferdu.chtgpt.models.ResModel;
+import com.ferdu.chtgpt.models.ResponseModel;
 import com.ferdu.chtgpt.models.TransModel;
 import com.ferdu.chtgpt.models.dao.BaseDao;
 import com.ferdu.chtgpt.models.data.Example2;
@@ -30,7 +32,8 @@ public class ChatRepository {
     private static final String TAG = "DownStream";
     private final Requests requests;
     private final ChatDatabase database;
-    public Call<ResponseModel2> myCall;
+    public Call<ResponseModel> myCall;
+    public Call<ResModel> resModelCall;
 
     public ChatRepository(ChatDatabase database) {
         this.database = database;
@@ -38,12 +41,12 @@ public class ChatRepository {
 
     }
 
-    public LiveData<ResponseModel2> getTex(String token, ReqModel reqModel) {
-        MutableLiveData<ResponseModel2> liveData = new MutableLiveData<>();
+    public LiveData<ResponseModel> getTex(String token, ReqModel reqModel) {
+        MutableLiveData<ResponseModel> liveData = new MutableLiveData<>();
         myCall = requests.getTex(token, reqModel);
-        myCall.enqueue(new Callback<ResponseModel2>() {
+        myCall.enqueue(new Callback<ResponseModel>() {
             @Override
-            public void onResponse(@NonNull Call<ResponseModel2> call, @NonNull Response<ResponseModel2> response) {
+            public void onResponse(@NonNull Call<ResponseModel> call, @NonNull Response<ResponseModel> response) {
                 if (response.errorBody() == null) {
                     liveData.setValue(response.body());
                 }else {
@@ -51,19 +54,51 @@ public class ChatRepository {
                     try {
                         String errorJson = response.errorBody().string();
                         Log.d("ITAG", "onResponse: "+ errorJson);
-                        ResponseModel2.ErrorParent errorBean = gson.fromJson(errorJson, ResponseModel2.ErrorParent.class);
-                        ResponseModel2 responseModel2 = new ResponseModel2(null);
-                        responseModel2.setErrorParent(errorBean);
-                        liveData.setValue(responseModel2);
+                        ResponseModel.ErrorParent errorBean = gson.fromJson(errorJson, ResponseModel.ErrorParent.class);
+                        ResponseModel responseModel = new ResponseModel(null);
+                        responseModel.setErrorParent(errorBean);
+                        liveData.setValue(responseModel);
                     } catch (IOException e) {
                         e.printStackTrace();
+                        liveData.setValue(new ResponseModel(e.getMessage()!=null&&!e.getMessage().trim().isEmpty()?e.getMessage():call.toString()));
                     }
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<ResponseModel2> call, @NonNull Throwable t) {
-                liveData.setValue(new ResponseModel2(t.getMessage()!=null&&!t.getMessage().trim().isEmpty()?t.getMessage():call.toString()));
+            public void onFailure(@NonNull Call<ResponseModel> call, @NonNull Throwable t) {
+                liveData.setValue(new ResponseModel(t.getMessage()!=null&&!t.getMessage().trim().isEmpty()?t.getMessage():call.toString()));
+            }
+        });
+        return liveData;
+    }
+  public LiveData<ResModel> chatCompletions(String token, RequestModel reqModel) {
+        MutableLiveData<ResModel> liveData = new MutableLiveData<>();
+        resModelCall = requests.chatCompletions(token, reqModel);
+      resModelCall.enqueue(new Callback<ResModel>() {
+            @Override
+            public void onResponse(@NonNull Call<ResModel> call, @NonNull Response<ResModel> response) {
+                if (response.errorBody() == null) {
+                    liveData.setValue(response.body());
+                }else {
+                    Gson gson = new Gson();
+                    try {
+                        String errorJson = response.errorBody().string();
+                        Log.d("ITAG", "onResponse: "+ errorJson);
+                        ResponseModel.ErrorParent errorBean = gson.fromJson(errorJson, ResponseModel.ErrorParent.class);
+                        ResModel responseModel2 = new ResModel(null);
+                        responseModel2.setErrorParent(errorBean);
+                        liveData.setValue(responseModel2);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        liveData.setValue(new ResModel(e.getMessage()!=null&&!e.getMessage().trim().isEmpty()?e.getMessage():call.toString()));
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ResModel> call, @NonNull Throwable t) {
+                liveData.setValue(new ResModel(t.getMessage()!=null&&!t.getMessage().trim().isEmpty()?t.getMessage():call.toString()));
             }
         });
         return liveData;

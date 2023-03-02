@@ -15,6 +15,8 @@ public interface PromptDAO extends BaseDao<PromptModel>{
     LiveData<List<PromptModel>> getQuery(String search);
     @Query("SELECT COUNT(*) FROM PromptModel")
     LiveData<Integer> getPromptCount();
+    @Query("SELECT Max(updateTime) FROM PromptModel")
+    LiveData<String> getPromptUpdate();
 
     @Query("SELECT * FROM PromptModel Where id=:search")
     LiveData<PromptModel> getAtQuery(String search);
